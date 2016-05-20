@@ -59,12 +59,74 @@ public class Gt06ProtocolEncoder extends BaseProtocolEncoder {
                 return encodeContent("Relay,1#");
             case Command.TYPE_ENGINE_RESUME:
                 return encodeContent("Relay,0#");
+            case Command.TYPE_SET_DEFENSE_TIME:
+                String defenseTime = command.getAttributes().get(Command.KEY_DEFENSE_TIME).toString();
+                return encodeContent("DEFENSE," + defenseTime + "#");
+            case Command.TYPE_GET_PARAMS:
+                return encodeContent("PARAM#");
+            case Command.TYPE_SET_TIMEZONE:
+                Long offset = (Long)command.getAttributes().get(Command.KEY_TIMEZONE);
+                return encodeContent(this.timeZoneCommand(offset));
+            case Command.TYPE_SET_SOS_NUMBERS:
+                String SOSNumber1 = "";
+                String SOSNumber2 = "";
+                String SOSNumber3 = "";
+                if (command.getAttributes().get(Command.KEY_SOS_NUMBER_1) != null) {
+                    SOSNumber1 = command.getAttributes().get(Command.KEY_SOS_NUMBER_1).toString();
+                }
+                if (command.getAttributes().get(Command.KEY_SOS_NUMBER_2) != null) {
+                    SOSNumber2 = command.getAttributes().get(Command.KEY_SOS_NUMBER_2).toString();
+                }
+                if (command.getAttributes().get(Command.KEY_SOS_NUMBER_3) != null) {
+                    SOSNumber3 = command.getAttributes().get(Command.KEY_SOS_NUMBER_3).toString();
+                }
+                return encodeContent("SOS,A," + SOSNumber1 + "," + SOSNumber2 + "," + SOSNumber3 + "#");
+            case Command.TYPE_DELETE_SOS_NUMBER:
+                String phoneNumber = command.getAttributes().get(Command.KEY_SOS_NUMBER).toString();
+                return encodeContent("SOS,D," + phoneNumber + "#");
+            case Command.TYPE_SET_CENTER_NUMBER:
+                String centerNumber = "";
+                if (command.getAttributes().get(Command.KEY_CENTER_NUMBER) != null) {
+                    centerNumber = command.getAttributes().get(Command.KEY_CENTER_NUMBER).toString();
+                }
+                if ("".equals(centerNumber)) {
+                    return encodeContent("CENTER,D#"); // Delete center number
+                } else {
+                    return encodeContent("CENTER,A," + centerNumber + "#"); // Set center number
+                }
+            case Command.TYPE_REBOOT_DEVICE:
+                return encodeContent("RESET#");
+            case Command.TYPE_POSITION_PERIODIC:
+                String frequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
+                return encodeContent("TIMER," + frequency + "," + frequency + "#");
+            case Command.TYPE_FACTORY_SETTINGS:
+                return encodeContent("FACTORY#");
             default:
                 Log.warning(new UnsupportedOperationException(command.getType()));
                 break;
         }
 
         return null;
+    }
+    
+    // Convert tz offset in seconds to form acceptable by GT06 device and return whole command
+    private String timeZoneCommand(Long offset) {
+        char timezoneDirection;
+        if (offset < 0) {
+            timezoneDirection = 'W';
+        } else {
+            timezoneDirection = 'E';
+        }
+        
+        Long offsetABS = Math.abs(offset);
+        Integer oneHourSeconds = 3600;
+        Integer quarterSeconds = 900;
+        Long offsetHours = offsetABS / oneHourSeconds;
+        Long offsetRemainder = offsetABS % oneHourSeconds;
+        Long quartersNum = offsetRemainder / quarterSeconds;
+        Long offsetMinutes = quartersNum * 15;
+        
+        return "GMT," + timezoneDirection + "," + offsetHours + "," + offsetMinutes + "#";
     }
 
 }

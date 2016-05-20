@@ -28,7 +28,16 @@ public class Gt06Protocol extends BaseProtocol {
         super("gt06");
         setSupportedCommands(
                 Command.TYPE_ENGINE_STOP,
-                Command.TYPE_ENGINE_RESUME);
+                Command.TYPE_ENGINE_RESUME,
+                Command.TYPE_SET_DEFENSE_TIME,
+                Command.TYPE_GET_PARAMS,
+                Command.TYPE_SET_TIMEZONE,
+                Command.TYPE_SET_SOS_NUMBERS,
+                Command.TYPE_DELETE_SOS_NUMBER,
+                Command.TYPE_SET_CENTER_NUMBER,
+                Command.TYPE_REBOOT_DEVICE,
+                Command.TYPE_POSITION_PERIODIC,
+                Command.TYPE_FACTORY_SETTINGS);
     }
 
     @Override

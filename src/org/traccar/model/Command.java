@@ -33,6 +33,12 @@ public class Command extends Extensible {
     public static final String TYPE_REBOOT_DEVICE = "rebootDevice";
     public static final String TYPE_MOVEMENT_ALARM = "movementAlarm";
     public static final String TYPE_SEND_SMS = "sendSms";
+    public static final String TYPE_SET_DEFENSE_TIME = "setDefenseTime";
+    public static final String TYPE_GET_PARAMS = "getParams";
+    public static final String TYPE_SET_SOS_NUMBERS = "setSOSNumbers";
+    public static final String TYPE_DELETE_SOS_NUMBER = "deleteSOSNumber";
+    public static final String TYPE_SET_CENTER_NUMBER = "setCenterNumber";
+    public static final String TYPE_FACTORY_SETTINGS = "factorySettings";
 
     public static final String KEY_UNIQUE_ID = "uniqueId";
     public static final String KEY_FREQUENCY = "frequency";
@@ -41,5 +47,10 @@ public class Command extends Extensible {
     public static final String KEY_RADIUS = "radius";
     public static final String KEY_PHONE_NUMBER = "phoneNumber";
     public static final String KEY_MESSAGE = "message";
-
+    public static final String KEY_DEFENSE_TIME = "defenseTime";
+    public static final String KEY_SOS_NUMBER_1 = "SOSNumber1";
+    public static final String KEY_SOS_NUMBER_2 = "SOSNumber2";
+    public static final String KEY_SOS_NUMBER_3 = "SOSNumber3";
+    public static final String KEY_SOS_NUMBER = "SOSNumber";
+    public static final String KEY_CENTER_NUMBER = "centerNumber";
 }

@@ -1,7 +1,9 @@
 package org.traccar.protocol;
 
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.junit.Test;
 import org.traccar.ProtocolTest;
+import org.traccar.model.ObdInfo;
 
 public class Gt06ProtocolDecoderTest extends ProtocolTest {
 
@@ -64,7 +66,21 @@ public class Gt06ProtocolDecoderTest extends ProtocolTest {
 
         verifyNothing(decoder, binary(
                 "787811010123456789012345100B3201000171930D0A"));
-
+        
+        ObdInfo info = new ObdInfo();
+        info.addProp(0x17, 0); //absErr
+        verifyObd(decoder, binary(obdPacket("3137333d30")), info);
+        
+        info = new ObdInfo();
+        info.addProp(0x17, 1);
+        info.addProp(0x2a, 1220);
+        verifyObd(decoder, binary(obdPacket("3137333d312c3261333d346334")), info);
+    }
+    
+    private String obdPacket(String obdData) {
+        String head = String.format("7979%04x8c10011a17310301",obdData.length()/2+24);
+        String tail = "c60598b6380243bfe03114d2002991600d0a"; 
+        return head+obdData+tail;
     }
 
 }

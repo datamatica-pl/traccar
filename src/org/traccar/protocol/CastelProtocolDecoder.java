@@ -51,6 +51,10 @@ public class CastelProtocolDecoder extends BaseProtocolDecoder {
     private static final short MSG_CC_LOGIN_RESPONSE = (short) 0x8001;
     private static final short MSG_CC_HEARTBEAT = 0x4206;
     private static final short MSG_CC_HEARTBEAT_RESPONSE = (short) 0x8206;
+    private static final short MSG_CC_SET = 0x5101;
+    private static final short MSG_CC_GPS_UPLOAD_INTERVAL = 0x4001;
+    private static final short MSG_PT_HEARTBEAT = 0x4003;
+    private static final short MSG_PT_HEARTBEAT_RESPONSE = (short)0x8003;
 
     private Position readPosition(ChannelBuffer buf) {
 
@@ -223,7 +227,9 @@ public class CastelProtocolDecoder extends BaseProtocolDecoder {
 
         } else {
 
-            if (type == MSG_CC_HEARTBEAT) {
+            if (version == 17 && type == MSG_PT_HEARTBEAT) 
+                sendResponse(channel, remoteAddress, version, id, MSG_PT_HEARTBEAT_RESPONSE, null);
+            else if (type == MSG_CC_HEARTBEAT) {
 
                 sendResponse(channel, remoteAddress, version, id, MSG_CC_HEARTBEAT_RESPONSE, null);
 
@@ -278,4 +284,13 @@ public class CastelProtocolDecoder extends BaseProtocolDecoder {
         return null;
     }
 
+    private ChannelBuffer buildSetPackage(short cmd_id, short value) {
+        ChannelBuffer buffer = ChannelBuffers.directBuffer(ByteOrder.LITTLE_ENDIAN, 10);
+        buffer.writeShort(ChannelBuffers.swapShort(cmd_id));
+        buffer.writeByte(1);
+        buffer.writeShort(cmd_id);
+        buffer.writeShort(2);
+        buffer.writeShort(value);
+        return buffer;
+    }
 }

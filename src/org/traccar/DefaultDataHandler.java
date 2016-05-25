@@ -16,6 +16,7 @@
 package org.traccar;
 
 import org.traccar.helper.Log;
+import org.traccar.model.ObdInfo;
 import org.traccar.model.Position;
 
 public class DefaultDataHandler extends BaseDataHandler {

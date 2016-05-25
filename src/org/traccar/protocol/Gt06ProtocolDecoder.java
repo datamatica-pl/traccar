@@ -28,6 +28,7 @@ import org.traccar.helper.Checksum;
 import org.traccar.helper.DateBuilder;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.Event;
+import org.traccar.model.ObdInfo;
 import org.traccar.model.Position;
 
 public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
@@ -63,6 +64,8 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
     public static final int MSG_COMMAND_0 = 0x80;
     public static final int MSG_COMMAND_1 = 0x81;
     public static final int MSG_COMMAND_2 = 0x82;
+    
+    public static final int MSG_OBD_PACKET = 0x8C;
 
     private static boolean isSupported(int type) {
         return hasGps(type) || hasLbs(type) || hasStatus(type);
@@ -99,36 +102,16 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
 
     private void decodeGps(Position position, ChannelBuffer buf) {
 
-        DateBuilder dateBuilder = new DateBuilder(timeZone)
-                .setDate(buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte())
-                .setTime(buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte());
-        position.setTime(dateBuilder.getDate());
+        readDate(buf, position);
 
         int length = buf.readUnsignedByte();
         position.set(Event.KEY_SATELLITES, BitUtil.to(length, 4));
         length = BitUtil.from(length, 4);
 
-        double latitude = buf.readUnsignedInt() / 60.0 / 30000.0;
-        double longitude = buf.readUnsignedInt() / 60.0 / 30000.0;
-        position.setSpeed(UnitsConverter.knotsFromKph(buf.readUnsignedByte()));
+        readLatLon(buf, position);
+        readSpeed(position, buf);
 
-        int flags = buf.readUnsignedShort();
-        position.setCourse(BitUtil.to(flags, 10));
-        position.setValid(BitUtil.check(flags, 12));
-
-        if (!BitUtil.check(flags, 10)) {
-            latitude = -latitude;
-        }
-        if (BitUtil.check(flags, 11)) {
-            longitude = -longitude;
-        }
-
-        position.setLatitude(latitude);
-        position.setLongitude(longitude);
-
-        if (BitUtil.check(flags, 14)) {
-            position.set(Event.KEY_IGNITION, BitUtil.check(flags, 15));
-        }
+        readCourseStatus(buf, position);
 
         buf.skipBytes(length - 12); // skip reserved
     }
@@ -157,7 +140,8 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
         int flags = buf.readUnsignedByte();
 
         position.set(Event.KEY_IGNITION, BitUtil.check(flags, 1));
-        position.set(Event.KEY_STATUS, flags);
+        // decode other flags
+
         position.set(Event.KEY_POWER, buf.readUnsignedByte());
         position.set(Event.KEY_GSM, buf.readUnsignedByte());
     }
@@ -168,8 +152,21 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
 
         ChannelBuffer buf = (ChannelBuffer) msg;
 
-        if (buf.readByte() != 0x78 || buf.readByte() != 0x78) {
+        byte header = buf.readByte();
+        if(header != buf.readByte())
             return null;
+        if(header != 0x78 && header != 0x79)
+            return null;
+        
+        if (header == 0x79) {
+            int length = buf.readUnsignedShort();
+            int dataLength = length - 8 - 16;
+            int type = buf.readUnsignedByte();
+            
+            if(type != MSG_OBD_PACKET)
+                return null;
+            
+            return decodeObd(buf,dataLength);
         }
 
         int length = buf.readUnsignedByte(); // size
@@ -250,4 +247,78 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
         return null;
     }
 
+    private Position decodeObd(ChannelBuffer buf, int dataLength) throws Exception {
+        Position position = new Position();
+        
+        readDate(buf, position);
+        buf.skipBytes(1); //ACC
+        readObd(dataLength, buf, position);
+        readLatLon(buf, position);
+        readSpeed(position, buf);
+        readCourseStatus(buf, position);
+        
+        return position;
+    }
+    
+
+    private void readSpeed(Position position, ChannelBuffer buf) {
+        position.setSpeed(UnitsConverter.knotsFromKph(buf.readUnsignedByte()));
+    }
+
+    private void readObd(int dataLength, ChannelBuffer buf, Position position) throws Exception {
+        byte[] bytes = new byte[dataLength];
+        buf.readBytes(bytes,0,bytes.length);
+        String content = new String(bytes);
+        ObdInfo info = new ObdInfo();
+        
+        String[] props = content.split(",");
+        for(int i=0;i<props.length;++i) {
+            String[] parts = props[i].split("=");
+            if(parts.length != 2) {
+                System.out.println(props[i]);
+                continue;
+            }
+            int key = Integer.parseInt(parts[0].substring(0,parts[0].length()-1), 16);
+            int val = Integer.parseInt(parts[1], 16);
+            info.addProp(key, val);
+        }
+        position.setObdInfo(info);
+    }
+    
+    private void readDate(ChannelBuffer buf, Position position) {
+        DateBuilder dateBuilder = new DateBuilder(timeZone)
+                .setDate(buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte())
+                .setTime(buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte());
+        position.setTime(dateBuilder.getDate());
+    }
+    
+    private void readLatLon(ChannelBuffer buf, Position position) {
+        double latitude = buf.readUnsignedInt() / 60.0 / 30000.0;
+        double longitude = buf.readUnsignedInt() / 60.0 / 30000.0;
+        position.setLatitude(latitude);
+        position.setLongitude(longitude);
+    }
+    
+    private void readCourseStatus(ChannelBuffer buf, Position position) {
+        double latitude = position.getLatitude();
+        double longitude = position.getLongitude();
+        
+        int flags = buf.readUnsignedShort();
+        position.setCourse(BitUtil.to(flags, 10));
+        position.setValid(BitUtil.check(flags, 12));
+
+        if (!BitUtil.check(flags, 10)) {
+            latitude = -latitude;
+        }
+        if (BitUtil.check(flags, 11)) {
+            longitude = -longitude;
+        }
+
+        position.setLatitude(latitude);
+        position.setLongitude(longitude);
+
+        if (BitUtil.check(flags, 14)) {
+            position.set(Event.KEY_IGNITION, BitUtil.check(flags, 15));
+        }
+    }
 }

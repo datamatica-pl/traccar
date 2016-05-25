@@ -62,6 +62,7 @@
     <entry key='database.saveOriginal'>false</entry>
 
     <!--<entry key='database.changelog'>./database/changelog-master.xml</entry>-->
+	<entry key='database.changelog'>./database/changelog-obd.xml</entry>
 
     <entry key='database.selectServers'>
         SELECT * FROM server;
@@ -230,6 +231,13 @@
     <entry key='database.updateLatestPosition'>
         UPDATE devices SET latestPosition_id = :id WHERE id = :deviceId;
     </entry>
+	
+	
+	<entry key="database.addObd">
+		INSERT INTO obd_info(ECMErr, ABSErr, SRSErr, RemainOilL, RemainOilPercent, InstFuelConsumptionKM, InstFuelConsumptionH, OilLife, OilPressure, WaterTemperature, RelPosOfAccPedal, AccPedalPressed, AdditionalInfo) 
+		VALUES 
+		(:ECMErr, :ABSErr, :SRSErr, :RemainOilL, :RemainOilPercent, :InstFuelConsumptionKM, :InstFuelConsumptionH, :OilLife, :OilPressure, :WaterTemperature, :RelPosOfAccPedal, :AccPedalPressed, :attributes);
+	</entry>
 
     <!-- PROTOCOL CONFIG -->
 

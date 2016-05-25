@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+  <changeSet author="UZamkniete" id="changelog-obd">
+    <createTable tableName="obd_info">
+	  <column name="id" type="INT" autoIncrement="true">
+        <constraints primaryKey="true" />
+	  </column>
+	  <column name="ECMErr" type="BIT(1)" />
+	  <column name="ABSErr" type="BIT(1)" />
+	  <column name="SRSErr" type="BIT(1)" />
+	  <column name="RemainOilL" type="double" />
+	  <column name="RemainOilPercent" type="double" />
+	  <column name="InstFuelConsumptionKM" type="double" />
+	  <column name="InstFuelConsumptionH" type="double" />
+	  <column name="OilLife" type="double" />
+	  <column name="OilPressure" type="double" />
+	  <column name="WaterTemperature" type="double" />
+	  <column name="RelPosOfAccPedal" type="double" />
+	  <column name="AccPedalPressed" type="double" />
+	  <column name="AdditionalInfo" type="varchar(2048)" />
+	</createTable>
+
+  </changeSet>
+</databaseChangeLog>

@@ -20,6 +20,7 @@ import com.ning.http.client.Response;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -57,7 +58,11 @@ public abstract class JsonReverseGeocoder implements ReverseGeocoder {
             }
         }
 
-        Context.getAsyncHttpClient().prepareGet(String.format(url, latitude, longitude))
+        String request = String.format(Locale.US, url, latitude, longitude);
+        
+        Context.getAsyncHttpClient()
+                .prepareGet(request)
+                .addHeader("User-agent", "traccar")
                 .execute(new AsyncCompletionHandler() {
             @Override
             public Object onCompleted(Response response) throws Exception {
@@ -72,7 +77,7 @@ public abstract class JsonReverseGeocoder implements ReverseGeocoder {
                     } else {
                         callback.onResult(null);
                     }
-                }
+                } 
                 return null;
             }
 

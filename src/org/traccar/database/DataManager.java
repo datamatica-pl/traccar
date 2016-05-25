@@ -45,6 +45,7 @@ import org.traccar.model.Device;
 import org.traccar.model.Group;
 import org.traccar.model.GroupPermission;
 import org.traccar.model.DevicePermission;
+import org.traccar.model.ObdInfo;
 import org.traccar.model.Position;
 import org.traccar.model.Server;
 import org.traccar.model.User;
@@ -434,6 +435,8 @@ public class DataManager implements IdentityManager {
     }
 
     public void addPosition(Position position) throws SQLException {
+        if(position.hasObd())
+            addObd(position);
         position.setId(QueryBuilder.create(dataSource, getQuery("database.insertPosition"), true)
                 .setDate("now", new Date())
                 .setObject(position)
@@ -461,6 +464,13 @@ public class DataManager implements IdentityManager {
         QueryBuilder.create(dataSource, getQuery("database.updateServer"))
                 .setObject(server)
                 .executeUpdate();
+    }
+
+    public void addObd(Position position) throws SQLException {
+        QueryBuilder builder = QueryBuilder.create(dataSource, getQuery("database.addObd"), true)
+                                           .setMap(position.getObdInfo())
+                                           .setStringifiedMap("attributes", position.getObdInfo());
+        position.setObdId(builder.executeUpdate());
     }
 
 }

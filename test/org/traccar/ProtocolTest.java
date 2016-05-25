@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import org.traccar.model.ObdInfo;
 
 public class ProtocolTest {
 
@@ -131,7 +132,15 @@ public class ProtocolTest {
     protected void verifyPositions(BaseProtocolDecoder decoder, Object object, Position position) throws Exception {
         verifyDecodedList(decoder.decode(null, null, object), true, position);
     }
+    
+    protected void verifyObd(BaseProtocolDecoder decoder, Object object) throws Exception {
+        verifyDecodedObdInfo(decoder.decode(null, null, object), null);
+    }
 
+    protected void verifyObd(BaseProtocolDecoder decoder, Object object, ObdInfo expected) throws Exception {
+        verifyDecodedObdInfo(decoder.decode(null, null, object), expected);
+    }
+    
     private void verifyDecodedList(Object decodedObject, boolean checkLocation, Position expected) {
 
         Assert.assertNotNull("list is null", decodedObject);
@@ -206,7 +215,20 @@ public class ProtocolTest {
         }
 
     }
-
+    
+    private void verifyDecodedObdInfo(Object decodedObject, ObdInfo expected) {
+        Assert.assertNotNull("decodedObject is null", decodedObject);
+        Assert.assertTrue("not position",decodedObject instanceof Position);
+        Position position = (Position) decodedObject;
+        Assert.assertNotNull("obd info is null", position.getObdInfo());
+        ObdInfo actual = position.getObdInfo();
+        
+        if(expected == null)
+            return;
+        
+        Assert.assertEquals(expected, actual);
+    }
+    
     private void checkInteger(Object value, int min, int max) {
         Assert.assertNotNull("value is null", value);
         Assert.assertTrue("not int or long", value instanceof Integer || value instanceof Long);

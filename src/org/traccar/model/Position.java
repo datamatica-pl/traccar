@@ -121,5 +121,27 @@ public class Position extends Event {
     public void setAddress(String address) {
         this.address = address;
     }
+    
+    private ObdInfo obdInfo;
+    private Long obdId;
+    
+    public ObdInfo getObdInfo(){
+        return obdInfo;
+    }
+    
+    public void setObdInfo(ObdInfo obdInfo) {
+        this.obdInfo = obdInfo;
+    }
+    
+    public Long getObdId() {
+        return obdId;
+    } 
+    
+    public void setObdId(Long obdId) {
+        this.obdId = obdId;
+    }
 
+    public boolean hasObd() {
+        return obdInfo != null;
+    }
 }

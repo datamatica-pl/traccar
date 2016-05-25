@@ -32,6 +32,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.json.Json;
 import javax.json.JsonReader;
 import javax.json.stream.JsonParsingException;
@@ -145,10 +148,13 @@ public final class QueryBuilder {
         return result;
     }
 
-    public QueryBuilder setBoolean(String name, boolean value) throws SQLException {
+    public QueryBuilder setBoolean(String name, Boolean value) throws SQLException {
         for (int i : indexes(name)) {
             try {
-                statement.setBoolean(i, value);
+                if(value == null)
+                    statement.setNull(i, Types.BIT);
+                else
+                    statement.setBoolean(i, value);
             } catch (SQLException error) {
                 statement.close();
                 connection.close();
@@ -158,10 +164,13 @@ public final class QueryBuilder {
         return this;
     }
 
-    public QueryBuilder setInteger(String name, int value) throws SQLException {
+    public QueryBuilder setInteger(String name, Integer value) throws SQLException {
         for (int i : indexes(name)) {
             try {
-                statement.setInt(i, value);
+                if(value == null)
+                    statement.setNull(i, Types.INTEGER);
+                else
+                    statement.setInt(i, value);
             } catch (SQLException error) {
                 statement.close();
                 connection.close();
@@ -171,10 +180,13 @@ public final class QueryBuilder {
         return this;
     }
 
-    public QueryBuilder setLong(String name, long value) throws SQLException {
+    public QueryBuilder setLong(String name, Long value) throws SQLException {
         for (int i : indexes(name)) {
             try {
-                statement.setLong(i, value);
+                if(value == null)
+                    statement.setNull(i, Types.BIGINT);
+                else
+                    statement.setLong(i, value);
             } catch (SQLException error) {
                 statement.close();
                 connection.close();
@@ -184,10 +196,13 @@ public final class QueryBuilder {
         return this;
     }
 
-    public QueryBuilder setDouble(String name, double value) throws SQLException {
+    public QueryBuilder setDouble(String name, Double value) throws SQLException {
         for (int i : indexes(name)) {
             try {
-                statement.setDouble(i, value);
+                if(value == null)
+                    statement.setNull(i, Types.DOUBLE);
+                else
+                    statement.setDouble(i, value);
             } catch (SQLException error) {
                 statement.close();
                 connection.close();
@@ -239,25 +254,7 @@ public final class QueryBuilder {
             if (method.getName().startsWith("get") && method.getParameterTypes().length == 0) {
                 String name = method.getName().substring(3);
                 try {
-                    if (method.getReturnType().equals(boolean.class)) {
-                        setBoolean(name, (Boolean) method.invoke(object));
-                    } else if (method.getReturnType().equals(int.class)) {
-                        setInteger(name, (Integer) method.invoke(object));
-                    } else if (method.getReturnType().equals(long.class)) {
-                        setLong(name, (Long) method.invoke(object));
-                    } else if (method.getReturnType().equals(double.class)) {
-                        setDouble(name, (Double) method.invoke(object));
-                    } else if (method.getReturnType().equals(String.class)) {
-                        setString(name, (String) method.invoke(object));
-                    } else if (method.getReturnType().equals(Date.class)) {
-                        setDate(name, (Date) method.invoke(object));
-                    } else if (method.getReturnType().equals(Map.class)) {
-                        if (Context.getConfig().getBoolean("database.xml")) {
-                            setString(name, MiscFormatter.toXmlString((Map) method.invoke(object)));
-                        } else {
-                            setString(name, MiscFormatter.toJsonString((Map) method.invoke(object)));
-                        }
-                    }
+                    set(method.getReturnType(), name, method.invoke(object));
                 } catch (IllegalAccessException | InvocationTargetException error) {
                     Log.warning(error);
                 }
@@ -266,6 +263,49 @@ public final class QueryBuilder {
 
         return this;
     }
+    
+    public QueryBuilder setMap(Map<String, Object> map) throws SQLException{
+        for(Entry<String,Object> entry : map.entrySet()) {
+            try {
+                Object value = entry.getValue();
+                if(value == null)
+                    set(double.class, entry.getKey(), value);
+                else
+                    set(value.getClass(), entry.getKey(), value);
+            } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException ex) {
+                Logger.getLogger(QueryBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return this;
+    }
+    
+    private void set(Class<?> type, String name, Object value) throws IllegalAccessException, InvocationTargetException, SQLException, IllegalArgumentException {
+        if (type.equals(Boolean.class) || type.equals(boolean.class)) {
+            setBoolean(name, (Boolean) value);
+        } else if (type.equals(Integer.class) || type.equals(int.class)) {
+            setInteger(name, (Integer) value);
+        } else if (type.equals(Long.class) || type.equals(long.class)) {
+            setLong(name, (Long) value);
+        } else if (type.equals(Double.class) || type.equals(double.class)) {
+            setDouble(name, (Double) value);
+        } else if (type.equals(String.class)) {
+            setString(name, (String) value);
+        } else if (type.equals(Date.class)) {
+            setDate(name, (Date) value);
+        } else if (type.equals(Map.class)) {
+            setStringifiedMap(name, (Map)value);
+        }
+    }
+
+    public QueryBuilder setStringifiedMap(String name, Map value) throws SQLException {
+        if (Context.getConfig().getBoolean("database.xml")) {
+            setString(name, MiscFormatter.toXmlString(value));
+        } else {
+            setString(name, MiscFormatter.toJsonString(value));
+        }
+        return this;
+    }
+    
 
     private interface ResultSetProcessor<T> {
         void process(T object, ResultSet resultSet) throws SQLException;

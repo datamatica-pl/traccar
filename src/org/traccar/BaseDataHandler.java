@@ -18,6 +18,7 @@ package org.traccar;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
+import org.traccar.model.ObdInfo;
 import org.traccar.model.Position;
 
 public abstract class BaseDataHandler extends OneToOneDecoder {

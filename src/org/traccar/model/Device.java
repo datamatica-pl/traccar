@@ -100,5 +100,14 @@ public class Device {
     public void setGroupId(long groupId) {
         this.groupId = groupId;
     }
+    
+    private Integer timezoneOffset;
 
+    public int getTimezoneOffset() {
+        return timezoneOffset == null ? 0 : timezoneOffset;
+    }
+
+    public void setTimezoneOffset(int timezoneOffset) {
+        this.timezoneOffset = timezoneOffset;
+    }
 }

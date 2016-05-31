@@ -17,13 +17,9 @@ package org.traccar.protocol;
 
 import java.util.List;
 import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
 import org.traccar.BaseProtocol;
 import org.traccar.TrackerServer;
-import org.traccar.helper.Log;
 import org.traccar.model.Command;
 
 public class Gt06Protocol extends BaseProtocol {

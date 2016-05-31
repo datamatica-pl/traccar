@@ -27,6 +27,7 @@ import org.traccar.Context;
 import org.traccar.helper.BitUtil;
 import org.traccar.helper.Checksum;
 import org.traccar.helper.DateBuilder;
+import org.traccar.helper.Log;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.CommandResponse;
 import org.traccar.model.Event;
@@ -171,7 +172,10 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
                 case MSG_OBD_PACKET:
                     return decodeObd(buf, length - 8 - 16);
                 case MSG_CMD_RESPONSE:
-                    return decodeCmdResponse(buf, length - 6 - 4);
+                    buf.skipBytes(4);
+                    byte encoding = buf.readByte();
+                    Charset charset = Charset.forName(encoding == 0x01 ?"ASCII":"UTF16-BE");
+                    return decodeCmdResponse(buf, length - 6 - 4, charset);
                 default:
                     return null;
             }
@@ -208,7 +212,19 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
 
         } else if (hasDeviceId()) {
             
-            if (isSupported(type)) {
+            if (type == 0x15) {
+                buf.skipBytes(5);
+                byte[] encoding = buf.slice(dataLength+2, 2).array();
+                if(encoding[0] == 0x00) {
+                    Charset charset = encoding[1] == 0x01? Charset.forName("UTF16-BE")
+                            : Charset.forName("ASCII");
+                    return decodeCmdResponse(buf, dataLength-12, charset);
+                } else {
+                    Log.debug("Unknown encoding");
+                    return decodeCmdResponse(buf, dataLength-12, Charset.forName("ASCII"));
+                }
+            }
+            else if (isSupported(type)) {
 
                 Position position = new Position();
                 position.setDeviceId(getDeviceId());
@@ -330,12 +346,8 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
         }
     }
 
-    private CommandResponse decodeCmdResponse(ChannelBuffer buf, int dataLength) {
-        buf.skipBytes(4);
-        byte encoding = buf.readByte();
-        Charset charset = Charset.forName(encoding == 0x01 ?"ASCII":"UTF16-BE");
+    private CommandResponse decodeCmdResponse(ChannelBuffer buf, int dataLength, Charset charset) {
         String response = new String(buf.readBytes(dataLength).array(), charset);
-        buf.skipBytes(6);
         return new CommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
                 response);
     }

@@ -151,6 +151,8 @@ public abstract class BasePipelineFactory implements ChannelPipelineFactory {
 
         addDynamicHandlers(pipeline);
 
+        pipeline.addLast("volatileData", new BaseVolatileDataHandler());
+        
         if (filterHandler != null) {
             pipeline.addLast("filter", filterHandler);
         }

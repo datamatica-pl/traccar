@@ -16,6 +16,7 @@
 package org.traccar.protocol;
 
 import java.net.SocketAddress;
+import java.nio.charset.Charset;
 import java.util.TimeZone;
 
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -26,7 +27,9 @@ import org.traccar.Context;
 import org.traccar.helper.BitUtil;
 import org.traccar.helper.Checksum;
 import org.traccar.helper.DateBuilder;
+import org.traccar.helper.Log;
 import org.traccar.helper.UnitsConverter;
+import org.traccar.model.CommandResponse;
 import org.traccar.model.Event;
 import org.traccar.model.ObdInfo;
 import org.traccar.model.Position;
@@ -66,6 +69,7 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
     public static final int MSG_COMMAND_2 = 0x82;
     
     public static final int MSG_OBD_PACKET = 0x8C;
+    public static final int MSG_CMD_RESPONSE = 0x21;
 
     private static boolean isSupported(int type) {
         return hasGps(type) || hasLbs(type) || hasStatus(type);
@@ -160,13 +164,21 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
         
         if (header == 0x79) {
             int length = buf.readUnsignedShort();
-            int dataLength = length - 8 - 16;
             int type = buf.readUnsignedByte();
-            
-            if(type != MSG_OBD_PACKET)
+            if(!hasDeviceId())
                 return null;
             
-            return decodeObd(buf,dataLength);
+            switch(type) {
+                case MSG_OBD_PACKET:
+                    return decodeObd(buf, length - 8 - 16);
+                case MSG_CMD_RESPONSE:
+                    buf.skipBytes(4);
+                    byte encoding = buf.readByte();
+                    Charset charset = Charset.forName(encoding == 0x01 ?"ASCII":"UTF16-BE");
+                    return decodeCmdResponse(buf, length - 6 - 4, charset);
+                default:
+                    return null;
+            }
         }
 
         int length = buf.readUnsignedByte(); // size
@@ -199,8 +211,20 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
             }
 
         } else if (hasDeviceId()) {
-
-            if (isSupported(type)) {
+            
+            if (type == 0x15) {
+                buf.skipBytes(5);
+                byte[] encoding = buf.slice(dataLength+2, 2).array();
+                if(encoding[0] == 0x00) {
+                    Charset charset = encoding[1] == 0x01? Charset.forName("UTF16-BE")
+                            : Charset.forName("ASCII");
+                    return decodeCmdResponse(buf, dataLength-12, charset);
+                } else {
+                    Log.debug("Unknown encoding");
+                    return decodeCmdResponse(buf, dataLength-12, Charset.forName("ASCII"));
+                }
+            }
+            else if (isSupported(type)) {
 
                 Position position = new Position();
                 position.setDeviceId(getDeviceId());
@@ -320,5 +344,11 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
         if (BitUtil.check(flags, 14)) {
             position.set(Event.KEY_IGNITION, BitUtil.check(flags, 15));
         }
+    }
+
+    private CommandResponse decodeCmdResponse(ChannelBuffer buf, int dataLength, Charset charset) {
+        String response = new String(buf.readBytes(dataLength).array(), charset);
+        return new CommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
+                response);
     }
 }

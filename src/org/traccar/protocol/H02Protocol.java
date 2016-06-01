@@ -21,11 +21,16 @@ import org.traccar.BaseProtocol;
 import org.traccar.TrackerServer;
 
 import java.util.List;
+import org.traccar.model.Command;
 
 public class H02Protocol extends BaseProtocol {
 
     public H02Protocol() {
         super("h02");
+        
+        setSupportedCommands(Command.TYPE_ENGINE_RESUME,
+                Command.TYPE_GET_PARAMS,
+                Command.TYPE_FACTORY_SETTINGS);
     }
 
     @Override

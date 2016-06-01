@@ -13,7 +13,7 @@
     <entry key='web.old'>true</entry>-->
     <entry key='web.path'>web</entry>
     <entry key='web.type'>old</entry>
-    <entry key='web.application'>../traccar-web/target/traccar-web-0.12.0.war</entry>
+    <entry key='web.application'>../traccar-web/target/traccar-web-0.12.1.war</entry>
     <entry key='web.debug'>true</entry>
     <entry key='web.console'>true</entry>
     <entry key='web.timeout'>30000</entry>

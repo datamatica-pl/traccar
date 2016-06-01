@@ -15,8 +15,9 @@
  */
 package org.traccar;
 
+import java.util.Date;
 import org.traccar.helper.Log;
-import org.traccar.model.ObdInfo;
+import org.traccar.model.Device;
 import org.traccar.model.Position;
 
 public class DefaultDataHandler extends BaseDataHandler {
@@ -27,6 +28,8 @@ public class DefaultDataHandler extends BaseDataHandler {
         try {
             Context.getDataManager().addPosition(position);
             Position lastPosition = Context.getConnectionManager().getLastPosition(position.getDeviceId());
+            Device device = Context.getDataManager().getDeviceById(position.getDeviceId());
+            position.setTime(new Date(position.getFixTime().getTime() + device.getTimezoneOffset()*60*1000));
             if (lastPosition == null || position.getFixTime().compareTo(lastPosition.getFixTime()) > 0) {
                 Context.getDataManager().updateLatestPosition(position);
             }

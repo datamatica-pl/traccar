@@ -214,14 +214,14 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
             
             if (type == 0x15) {
                 buf.skipBytes(5);
-                byte[] encoding = buf.slice(dataLength+2, 2).array();
+                byte[] encoding = buf.copy(dataLength+2, 2).array();
                 if(encoding[0] == 0x00) {
                     Charset charset = encoding[1] == 0x01? Charset.forName("UTF16-BE")
                             : Charset.forName("ASCII");
-                    return decodeCmdResponse(buf, dataLength-12, charset);
+                    return decodeCmdResponse(buf, dataLength-7, charset);
                 } else {
-                    Log.debug("Unknown encoding");
-                    return decodeCmdResponse(buf, dataLength-12, Charset.forName("ASCII"));
+                    Log.warning(String.format("Unknown encoding, %02X%02X", encoding[0], encoding[1]));
+                    return decodeCmdResponse(buf, dataLength-7, Charset.forName("ASCII"));
                 }
             }
             else if (isSupported(type)) {

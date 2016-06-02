@@ -15,20 +15,20 @@
  */
 package org.traccar.protocol;
 
-import java.net.SocketAddress;
-import java.nio.charset.Charset;
-import java.util.regex.Pattern;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.traccar.BaseProtocolDecoder;
+import org.traccar.helper.BcdUtil;
 import org.traccar.helper.BitUtil;
-import org.traccar.helper.ChannelBufferTools;
 import org.traccar.helper.DateBuilder;
 import org.traccar.helper.Parser;
 import org.traccar.helper.PatternBuilder;
-import org.traccar.model.Event;
 import org.traccar.model.Position;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 
 public class H02ProtocolDecoder extends BaseProtocolDecoder {
 
@@ -38,7 +38,7 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
 
     private static double readCoordinate(ChannelBuffer buf, boolean lon) {
 
-        int degrees = ChannelBufferTools.readHexInteger(buf, 2);
+        int degrees = BcdUtil.readInteger(buf, 2);
         if (lon) {
             degrees = degrees * 10 + (buf.getUnsignedByte(buf.readerIndex()) >> 4);
         }
@@ -53,7 +53,7 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
             length = 5;
         }
 
-        result = result * 10 + ChannelBufferTools.readHexInteger(buf, length) * 0.0001;
+        result = result * 10 + BcdUtil.readInteger(buf, length) * 0.0001;
 
         result /= 60;
         result += degrees;
@@ -64,10 +64,10 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
     private void processStatus(Position position, long status) {
         if (!BitUtil.check(status, 0) || !BitUtil.check(status, 1)
                 || !BitUtil.check(status, 3) || !BitUtil.check(status, 4)) {
-            position.set(Event.KEY_ALARM, true);
+            position.set(Position.KEY_ALARM, true);
         }
-        position.set(Event.KEY_IGNITION, !BitUtil.check(status, 10));
-        position.set(Event.KEY_STATUS, status);
+        position.set(Position.KEY_IGNITION, !BitUtil.check(status, 10));
+        position.set(Position.KEY_STATUS, status);
     }
 
     private Position decodeBinary(ChannelBuffer buf, Channel channel, SocketAddress remoteAddress) {
@@ -83,16 +83,16 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
         position.setDeviceId(getDeviceId());
 
         DateBuilder dateBuilder = new DateBuilder()
-                .setHour(ChannelBufferTools.readHexInteger(buf, 2))
-                .setMinute(ChannelBufferTools.readHexInteger(buf, 2))
-                .setSecond(ChannelBufferTools.readHexInteger(buf, 2))
-                .setDay(ChannelBufferTools.readHexInteger(buf, 2))
-                .setMonth(ChannelBufferTools.readHexInteger(buf, 2))
-                .setYear(ChannelBufferTools.readHexInteger(buf, 2));
+                .setHour(BcdUtil.readInteger(buf, 2))
+                .setMinute(BcdUtil.readInteger(buf, 2))
+                .setSecond(BcdUtil.readInteger(buf, 2))
+                .setDay(BcdUtil.readInteger(buf, 2))
+                .setMonth(BcdUtil.readInteger(buf, 2))
+                .setYear(BcdUtil.readInteger(buf, 2));
         position.setTime(dateBuilder.getDate());
 
         double latitude = readCoordinate(buf, false);
-        position.set(Event.KEY_POWER, buf.readByte());
+        position.set(Position.KEY_POWER, buf.readByte());
         double longitude = readCoordinate(buf, true);
 
         int flags = buf.readUnsignedByte() & 0x0f;
@@ -107,8 +107,8 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
         position.setLatitude(latitude);
         position.setLongitude(longitude);
 
-        position.setSpeed(ChannelBufferTools.readHexInteger(buf, 3));
-        position.setCourse((buf.readUnsignedByte() & 0x0f) * 100.0 + ChannelBufferTools.readHexInteger(buf, 2));
+        position.setSpeed(BcdUtil.readInteger(buf, 3));
+        position.setCourse((buf.readUnsignedByte() & 0x0f) * 100.0 + BcdUtil.readInteger(buf, 2));
 
         processStatus(position, buf.readUnsignedInt());
         return position;
@@ -193,12 +193,12 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
             Channel channel, SocketAddress remoteAddress, Object msg) throws Exception {
 
         ChannelBuffer buf = (ChannelBuffer) msg;
-        String marker = buf.toString(0, 1, Charset.defaultCharset());
+        String marker = buf.toString(0, 1, StandardCharsets.US_ASCII);
 
         // handle X mode?
 
         if (marker.equals("*")) {
-            return decodeText(buf.toString(Charset.defaultCharset()), channel, remoteAddress);
+            return decodeText(buf.toString(StandardCharsets.US_ASCII), channel, remoteAddress);
         } else if (marker.equals("$")) {
             return decodeBinary(buf, channel, remoteAddress);
         }

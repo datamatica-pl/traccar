@@ -110,4 +110,14 @@ public class Device {
     public void setTimezoneOffset(int timezoneOffset) {
         this.timezoneOffset = timezoneOffset;
     }
+    
+    private String commandPassword;
+    
+    public String getCommandPassword() {
+        return commandPassword == null ? "" : commandPassword;
+    }
+    
+    public void setCommandPassword(String commandPassword) {
+        this.commandPassword = commandPassword;
+    }
 }

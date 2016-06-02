@@ -20,11 +20,16 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.traccar.helper.Log;
 import org.traccar.model.Command;
+import org.traccar.model.Device;
 
 public abstract class BaseProtocolEncoder extends OneToOneEncoder {
 
     protected String getUniqueId(long deviceId) {
         return Context.getIdentityManager().getDeviceById(deviceId).getUniqueId();
+    }
+    
+    protected Device getDevice(long deviceId) {
+        return Context.getIdentityManager().getDeviceById(deviceId);
     }
 
     @Override

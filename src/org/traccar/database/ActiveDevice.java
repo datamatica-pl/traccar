@@ -91,6 +91,14 @@ public class ActiveDevice {
         }
     }
 
+    public void unlockChannel() {
+        synchronized(channel) {
+            handler = null;
+            isBusy = false;
+            channel.notify();
+        }
+    }
+    
     public void onCommandResponse(String message) {
 
         if(handler != null){

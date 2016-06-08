@@ -130,4 +130,14 @@ public class Device {
     public void setSpeedAlarm(boolean speedAlarm) {
         this.speedAlarm = speedAlarm;
     }
+    
+    private String commandPassword;
+    
+    public String getCommandPassword() {
+        return commandPassword == null ? "" : commandPassword;
+    }
+    
+    public void setCommandPassword(String commandPassword) {
+        this.commandPassword = commandPassword;
+    }
 }

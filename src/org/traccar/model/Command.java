@@ -28,6 +28,8 @@ public class Command extends Extensible {
     public static final String TYPE_ENGINE_RESUME = "engineResume";
     public static final String TYPE_ALARM_ARM = "alarmArm";
     public static final String TYPE_ALARM_DISARM = "alarmDisarm";
+    public static final String TYPE_AUTO_ALARM_ARM = "autoAlarmArm";
+    public static final String TYPE_AUTO_ALARM_DISARM = "autoAlarmDisarm";
     public static final String TYPE_SET_TIMEZONE = "setTimezone";
     public static final String TYPE_REQUEST_PHOTO = "requestPhoto";
     public static final String TYPE_REBOOT_DEVICE = "rebootDevice";

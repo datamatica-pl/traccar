@@ -34,7 +34,7 @@ public class ActiveDevice {
     private final SocketAddress remoteAddress;
     private Object handler;
     private final Semaphore semaphore;
-    private final Timer timer;
+    private Timer timer;
     
     public static final int COMMAND_TIMEOUT = 15*1000;
 
@@ -44,7 +44,6 @@ public class ActiveDevice {
         this.channel = channel;
         this.remoteAddress = remoteAddress;
         this.semaphore = new Semaphore(1);
-        this.timer = new Timer();
     }
 
     public Channel getChannel() {
@@ -86,6 +85,7 @@ public class ActiveDevice {
     
     public void lockChannel() throws InterruptedException {
         semaphore.acquire();
+        timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {

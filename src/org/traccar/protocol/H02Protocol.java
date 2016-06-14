@@ -41,6 +41,8 @@ public class H02Protocol extends BaseProtocol {
                 Command.TYPE_SET_SOS_NUMBERS,
                 Command.TYPE_GET_PARAMS,
                 Command.TYPE_SET_TIMEZONE,
+                Command.TYPE_AUTO_ALARM_DISARM,
+                Command.TYPE_AUTO_ALARM_ARM,
                 Command.TYPE_CUSTOM
         );
     }

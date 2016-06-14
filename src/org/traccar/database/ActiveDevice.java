@@ -17,11 +17,13 @@ package org.traccar.database;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.SocketAddress;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jboss.netty.channel.Channel;
 import org.traccar.Protocol;
-import org.traccar.helper.Log;
 import org.traccar.model.Command;
 
 public class ActiveDevice {
@@ -31,14 +33,17 @@ public class ActiveDevice {
     private final Channel channel;
     private final SocketAddress remoteAddress;
     private Object handler;
-    private boolean isBusy;
+    private final Semaphore semaphore;
+    private Timer timer;
+    
+    public static final int COMMAND_TIMEOUT = 15*1000;
 
     public ActiveDevice(long deviceId, Protocol protocol, Channel channel, SocketAddress remoteAddress) {
         this.deviceId = deviceId;
         this.protocol = protocol;
         this.channel = channel;
         this.remoteAddress = remoteAddress;
-        this.isBusy = false;
+        this.semaphore = new Semaphore(1);
     }
 
     public Channel getChannel() {
@@ -63,10 +68,7 @@ public class ActiveDevice {
         try{
             protocol.sendCommand(this, command);
         }catch(Exception e) {
-            synchronized(channel) {
-                isBusy = false;
-                channel.notify();
-            }
+            onCommandFail();
             throw e;
         }
     }
@@ -82,25 +84,18 @@ public class ActiveDevice {
     }
     
     public void lockChannel() throws InterruptedException {
-        synchronized(channel) {
-            while(isBusy) {
-                Log.debug("busy!");
-                channel.wait();
+        semaphore.acquire();
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                onCommandFail();
             }
-            isBusy = true;
-        }
-    }
-
-    public void unlockChannel() {
-        synchronized(channel) {
-            handler = null;
-            isBusy = false;
-            channel.notify();
-        }
+        }, COMMAND_TIMEOUT);
     }
     
     public void onCommandResponse(String message) {
-
+        timer.cancel();
         if(handler != null){
             try {
                 handler.getClass().getDeclaredMethod("success", String.class)
@@ -109,10 +104,19 @@ public class ActiveDevice {
                 Logger.getLogger(ActiveDevice.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        synchronized(ActiveDevice.this.channel) {
-            handler = null;
-            isBusy = false;
-            channel.notify();
-        }
+        handler = null;
+        semaphore.release();
+    }
+    
+    private void onCommandFail() {
+        if(handler != null)
+            try {
+                handler.getClass().getDeclaredMethod("fail").invoke(handler);
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                Logger.getLogger(ActiveDevice.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                handler = null;
+                semaphore.release();
+            }
     }
 }

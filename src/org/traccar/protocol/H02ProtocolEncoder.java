@@ -61,6 +61,10 @@ public class H02ProtocolEncoder extends StringProtocolEncoder {
                         time, uniqueId, "S20", "1", "3", "10", "3", "5", "5", "3", "5", "3", "5", "3", "5");
             case Command.TYPE_ENGINE_RESUME:
                 return formatCommand(time, uniqueId, "S20", "0", "0");
+            case Command.TYPE_AUTO_ALARM_ARM:
+                return "auto1";
+            case Command.TYPE_AUTO_ALARM_DISARM:
+                return "auto0";
             case Command.TYPE_POSITION_PERIODIC:
                 String frequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
                 return "run," + frequency;

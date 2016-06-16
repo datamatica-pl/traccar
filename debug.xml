@@ -155,6 +155,11 @@
     <entry key='database.updateDeviceStatus'>
         UPDATE devices SET status = :status, lastUpdate = :lastUpdate WHERE id = :id;
     </entry>
+	
+	<entry key='database.updateSpeedAlarm'>
+		UPDATE devices SET speedAlarm = :speedAlarm
+		WHERE id = :id;
+	</entry>
 
     <entry key='database.deleteDevice'>
         DELETE FROM devices WHERE id = :id;

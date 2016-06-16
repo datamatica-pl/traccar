@@ -357,6 +357,13 @@ public class DataManager implements IdentityManager {
                 .setObject(device)
                 .executeUpdate();
     }
+    
+    public void updateSpeedAlarm(long deviceId, boolean speedAlarm) throws SQLException {
+        QueryBuilder.create(dataSource, getQuery("database.updateSpeedAlarm"))
+                .setLong("id", deviceId)
+                .setBoolean("speedAlarm", speedAlarm)
+                .executeUpdate();
+    }
 
     public void removeDevice(long deviceId) throws SQLException {
         QueryBuilder.create(dataSource, getQuery("database.deleteDevice"))

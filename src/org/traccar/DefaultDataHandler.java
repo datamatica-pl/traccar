@@ -18,6 +18,7 @@ package org.traccar;
 import java.util.Date;
 import org.traccar.helper.Log;
 import org.traccar.model.Device;
+import org.traccar.model.Event;
 import org.traccar.model.Position;
 
 public class DefaultDataHandler extends BaseDataHandler {
@@ -29,6 +30,15 @@ public class DefaultDataHandler extends BaseDataHandler {
             Context.getDataManager().addPosition(position);
             Position lastPosition = Context.getConnectionManager().getLastPosition(position.getDeviceId());
             Device device = Context.getDataManager().getDeviceById(position.getDeviceId());
+            if(!device.isSpeedAlarm() && position.getSpeed() > device.getSpeedLimit()) {
+                device.setSpeedAlarm(true);
+                Context.getDataManager().updateSpeedAlarm(device.getId(), true);
+            }
+            Boolean ignition = (Boolean)position.getAttributes().get(Event.KEY_IGNITION);
+            if(device.isSpeedAlarm() && ignition != null && !ignition) {
+                device.setSpeedAlarm(false);
+                Context.getDataManager().updateSpeedAlarm(device.getId(), false);
+            }
             position.setTime(new Date(position.getFixTime().getTime() + device.getTimezoneOffset()*60*1000));
             if (lastPosition == null || position.getFixTime().compareTo(lastPosition.getFixTime()) > 0) {
                 Context.getDataManager().updateLatestPosition(position);

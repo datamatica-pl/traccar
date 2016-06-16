@@ -111,6 +111,26 @@ public class Device {
         this.timezoneOffset = timezoneOffset;
     }
     
+    private double speedLimit;
+
+    public double getSpeedLimit() {
+        return speedLimit;
+    }
+
+    public void setSpeedLimit(double speedLimit) {
+        this.speedLimit = speedLimit;
+    }
+    
+    private boolean speedAlarm;
+
+    public boolean isSpeedAlarm() {
+        return speedAlarm;
+    }
+    
+    public void setSpeedAlarm(boolean speedAlarm) {
+        this.speedAlarm = speedAlarm;
+    }
+    
     private String commandPassword;
     
     public String getCommandPassword() {

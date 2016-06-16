@@ -30,13 +30,27 @@ public class H02FrameDecoder extends FrameDecoder {
 
         char marker = (char) buf.getByte(buf.readerIndex());
 
-        while (marker != '*' && marker != '$' && buf.readableBytes() > 0) {
+        while (marker != '*' && marker != '$' && !Character.isLetter(marker) && buf.readableBytes() > 0) {
             buf.skipBytes(1);
             if (buf.readableBytes() > 0) {
                 marker = (char) buf.getByte(buf.readerIndex());
             }
         }
-
+        
+        if(Character.isLetter(marker)) {
+            int index1 = buf.indexOf(buf.readerIndex(), buf.writerIndex(), (byte)'*');
+            int index2 = buf.indexOf(buf.readerIndex(), buf.writerIndex(), (byte)'$');
+            int index;
+            if(index1 != -1 && index2 != -1) {
+                if(index1 != -1 && index2 != -1)
+                    index = Math.min(index1, index2);
+                else
+                    index = index1 != -1 ? index1 : index2;
+                return buf.readBytes(index + 1 - buf.readerIndex());
+            } else
+                return buf.readBytes(buf.readableBytes() - buf.readerIndex());
+        }
+        
         if (marker == '*') {
 
             // Return text message

@@ -21,14 +21,20 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 import org.traccar.BaseProtocol;
 import org.traccar.TrackerServer;
-
 import java.nio.ByteOrder;
 import java.util.List;
+import org.traccar.model.Command;
 
 public class CastelProtocol extends BaseProtocol {
 
     public CastelProtocol() {
         super("castel");
+        setSupportedCommands(
+            Command.TYPE_GET_PARAMS,
+            Command.TYPE_POSITION_PERIODIC,
+            Command.TYPE_SET_CENTER_NUMBER,
+            Command.TYPE_SET_SOS_NUMBERS
+        );
     }
 
     @Override
@@ -37,6 +43,7 @@ public class CastelProtocol extends BaseProtocol {
             @Override
             protected void addSpecificHandlers(ChannelPipeline pipeline) {
                 pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(1024, 2, 2, -4, 0));
+                pipeline.addLast("objectEncoder", new CastelProtocolEncoder());
                 pipeline.addLast("objectDecoder", new CastelProtocolDecoder(CastelProtocol.this));
             }
         };

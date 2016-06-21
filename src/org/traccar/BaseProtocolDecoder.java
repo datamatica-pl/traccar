@@ -76,6 +76,8 @@ public abstract class BaseProtocolDecoder extends ExtendedObjectDecoder {
     }
 
     public boolean identify(String uniqueId, Channel channel, SocketAddress remoteAddress) {
+        if(hasDeviceId())
+            return true;
         return identify(uniqueId, channel, remoteAddress, true);
     }
 

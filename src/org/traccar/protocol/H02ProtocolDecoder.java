@@ -28,7 +28,11 @@ import org.traccar.model.Position;
 
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
+import org.traccar.Context;
+import org.traccar.model.CommandResponse;
 
 public class H02ProtocolDecoder extends BaseProtocolDecoder {
 
@@ -147,7 +151,7 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
         if (!parser.matches()) {
             return null;
         }
-
+        
         Position position = new Position();
         position.setProtocol(getProtocolName());
 
@@ -191,14 +195,26 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
     @Override
     protected Object decode(
             Channel channel, SocketAddress remoteAddress, Object msg) throws Exception {
-
+        
         ChannelBuffer buf = (ChannelBuffer) msg;
         String marker = buf.toString(0, 1, StandardCharsets.US_ASCII);
-
+        
+        
+        if(Character.isLetter(marker.charAt(0)) && hasDeviceId())
+            return new CommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
+                buf.toString(StandardCharsets.US_ASCII));
+        
         // handle X mode?
-
         if (marker.equals("*")) {
-            return decodeText(buf.toString(StandardCharsets.US_ASCII), channel, remoteAddress);
+            Position position = decodeText(buf.toString(StandardCharsets.US_ASCII), channel, remoteAddress);
+            if(position == null)
+                return null;
+            
+            List<Object> response = new ArrayList<>();
+            response.add(position);
+            response.add(new CommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
+                    buf.toString(StandardCharsets.US_ASCII)));
+            return response;
         } else if (marker.equals("$")) {
             return decodeBinary(buf, channel, remoteAddress);
         }

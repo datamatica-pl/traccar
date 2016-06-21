@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import org.traccar.model.CommandResponse;
 import org.traccar.model.ObdInfo;
 
 public class ProtocolTest {
@@ -113,12 +114,20 @@ public class ProtocolTest {
         verifyDecodedPosition(decoder.decode(null, null, object), false, true, null);
     }
 
+    protected void verifyCommandResponseAndPosition(BaseProtocolDecoder decoder, Object object) throws Exception {
+        verifyDecodedCommandResponseAndPosition(decoder.decode(null, null, object), true, null);
+    }
+    
     protected void verifyPosition(BaseProtocolDecoder decoder, Object object) throws Exception {
         verifyDecodedPosition(decoder.decode(null, null, object), true, false, null);
     }
 
     protected void verifyPosition(BaseProtocolDecoder decoder, Object object, Position position) throws Exception {
         verifyDecodedPosition(decoder.decode(null, null, object), true, false, position);
+    }
+    
+    protected void verifyCommandResponseAndPosition(BaseProtocolDecoder decoder, Object object, Position position) throws Exception {
+        verifyDecodedCommandResponseAndPosition(decoder.decode(null, null, object), true, position);
     }
 
     protected void verifyPositions(BaseProtocolDecoder decoder, Object object) throws Exception {
@@ -151,6 +160,21 @@ public class ProtocolTest {
             verifyDecodedPosition(item, checkLocation, false, expected);
         }
 
+    }
+    
+    private void verifyDecodedCommandResponseAndPosition(Object decodedObject, boolean checkLocation, Position expected) {
+        Assert.assertNotNull("list is null", decodedObject);
+        Assert.assertTrue("not a list", decodedObject instanceof List);
+        Assert.assertFalse("list if empty", ((List) decodedObject).isEmpty());
+        
+        boolean containCommandResponse = false;
+        for (Object item : (List) decodedObject) {
+            if(item instanceof CommandResponse)
+                containCommandResponse = true;
+            if(item instanceof Position)
+                verifyDecodedPosition(item, checkLocation, false, expected);
+        }
+        Assert.assertTrue("list doesn't contain command response", containCommandResponse);
     }
 
     private void verifyDecodedPosition(Object decodedObject, boolean checkLocation, boolean checkAttributes, Position expected) {

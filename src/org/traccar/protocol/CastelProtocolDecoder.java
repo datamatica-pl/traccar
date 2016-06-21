@@ -27,6 +27,7 @@ import org.traccar.BaseProtocolDecoder;
 import org.traccar.helper.Checksum;
 import org.traccar.helper.DateBuilder;
 import org.traccar.helper.UnitsConverter;
+import org.traccar.model.CommandResponse;
 import org.traccar.model.Event;
 import org.traccar.model.Position;
 
@@ -55,6 +56,7 @@ public class CastelProtocolDecoder extends BaseProtocolDecoder {
     private static final short MSG_CC_GPS_UPLOAD_INTERVAL = 0x4001;
     private static final short MSG_PT_HEARTBEAT = 0x4003;
     private static final short MSG_PT_HEARTBEAT_RESPONSE = (short)0x8003;
+    private static final short MSG_RESPONSE = (short)0x9101;
 
     private Position readPosition(ChannelBuffer buf) {
 
@@ -154,6 +156,10 @@ public class CastelProtocolDecoder extends BaseProtocolDecoder {
 
         if (!identify(id.toString(Charset.defaultCharset()).trim(), channel, remoteAddress)) {
             return null;
+        }
+        
+        if(type == MSG_RESPONSE) {
+            return handleResponse(buf);
         }
 
         if (version == -1) {
@@ -292,5 +298,18 @@ public class CastelProtocolDecoder extends BaseProtocolDecoder {
         buffer.writeShort(2);
         buffer.writeShort(value);
         return buffer;
+    }
+
+    private CommandResponse handleResponse(ChannelBuffer buf) {
+        buf.skipBytes(2);//sequence number
+        if(readResponse(buf))
+            return new CommandResponse(getActiveDevice(), CMD_RESULT_OK);
+        else
+            return new CommandResponse(getActiveDevice(), CMD_RESULT_FAIL, false);        
+    }
+    
+    private boolean readResponse(ChannelBuffer buf) {
+        byte successCount = buf.readByte();
+        return successCount > 0;
     }
 }

@@ -20,11 +20,15 @@ import java.net.SocketAddress;
 import java.util.Date;
 
 import org.jboss.netty.channel.Channel;
+import org.traccar.database.ActiveDevice;
 import org.traccar.helper.Log;
 import org.traccar.model.Device;
 import org.traccar.model.Position;
 
 public abstract class BaseProtocolDecoder extends ExtendedObjectDecoder {
+    
+    protected static final String CMD_RESULT_OK = "Ok";
+    protected static final String CMD_RESULT_FAIL = "Device error";
 
     private final Protocol protocol;
 
@@ -40,6 +44,10 @@ public abstract class BaseProtocolDecoder extends ExtendedObjectDecoder {
 
     public long getDeviceId() {
         return deviceId;
+    }
+    
+    protected ActiveDevice getActiveDevice() {
+        return Context.getConnectionManager().getActiveDevice(deviceId);
     }
 
     public boolean identify(String uniqueId, Channel channel, SocketAddress remoteAddress, boolean logWarning) {

@@ -348,7 +348,6 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
 
     private CommandResponse decodeCmdResponse(ChannelBuffer buf, int dataLength, Charset charset) {
         String response = new String(buf.readBytes(dataLength).array(), charset);
-        return new CommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
-                response);
+        return new CommandResponse(getActiveDevice(), response);
     }
 }

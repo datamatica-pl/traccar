@@ -23,7 +23,10 @@ public class BaseVolatileDataHandler extends SimpleChannelHandler {
         if(isVolatile(message)) {
             CommandResponse cr = (CommandResponse) message;
             Log.info(String.format("[%08X], Response: %s", e.getChannel().getId(), cr.toString()));
-            cr.getActiveDevice().onCommandResponse(cr.toString());
+            if(cr.isSuccess())
+                cr.getActiveDevice().onCommandResponse(cr.toString());
+            else
+                cr.getActiveDevice().onCommandFail(cr.toString());
         } else
             super.messageReceived(ctx, e);
     }

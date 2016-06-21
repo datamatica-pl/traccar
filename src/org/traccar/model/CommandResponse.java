@@ -10,12 +10,21 @@ import org.traccar.database.ActiveDevice;
 public class CommandResponse {
     private String data;
     private ActiveDevice activeDevice;
+    private boolean success;
 
     public CommandResponse(ActiveDevice activeDevice, String data) {
-        this.activeDevice = activeDevice;
-        this.data = data;
+        this(activeDevice, data, true);
     }
-    
+
+    public CommandResponse(ActiveDevice activeDevice, String data, boolean success) {
+        this.data = data;
+        this.activeDevice = activeDevice;
+        this.success = success;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
     
     public ActiveDevice getActiveDevice() {
         return activeDevice;

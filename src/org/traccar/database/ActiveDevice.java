@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 import org.jboss.netty.channel.Channel;
 import org.traccar.Protocol;
 import org.traccar.model.Command;
+import org.traccar.model.CommandResponse;
 
 public class ActiveDevice {
     
@@ -37,6 +38,8 @@ public class ActiveDevice {
     private Timer timer;
     
     public static final int COMMAND_TIMEOUT = 15*1000;
+    
+    private static final String CAUSE_TIMEOUT = "timeout";
 
     public ActiveDevice(long deviceId, Protocol protocol, Channel channel, SocketAddress remoteAddress) {
         this.deviceId = deviceId;
@@ -68,7 +71,7 @@ public class ActiveDevice {
         try{
             protocol.sendCommand(this, command);
         }catch(Exception e) {
-            onCommandFail();
+            onCommandFail(e.toString());
             throw e;
         }
     }
@@ -89,7 +92,7 @@ public class ActiveDevice {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                onCommandFail();
+                onCommandFail(CAUSE_TIMEOUT);
             }
         }, COMMAND_TIMEOUT);
     }
@@ -108,10 +111,11 @@ public class ActiveDevice {
         semaphore.release();
     }
     
-    private void onCommandFail() {
+    public void onCommandFail(String reason) {
         if(handler != null)
             try {
-                handler.getClass().getDeclaredMethod("fail").invoke(handler);
+                handler.getClass().getDeclaredMethod("fail", String.class)
+                        .invoke(handler, reason);
             } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(ActiveDevice.class.getName()).log(Level.SEVERE, null, ex);
             } finally {

@@ -17,6 +17,7 @@ package org.traccar.protocol;
 
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.TimeZone;
 
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -216,8 +217,8 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
                 buf.skipBytes(5);
                 byte[] encoding = buf.copy(dataLength+2, 2).array();
                 if(encoding[0] == 0x00) {
-                    Charset charset = encoding[1] == 0x01? Charset.forName("UTF16-BE")
-                            : Charset.forName("ASCII");
+                    Charset charset = encoding[1] == 0x01? StandardCharsets.UTF_16BE
+                            : StandardCharsets.US_ASCII;
                     return decodeCmdResponse(buf, dataLength-7, charset);
                 } else {
                     Log.warning(String.format("Unknown encoding, %02X%02X", encoding[0], encoding[1]));
@@ -347,7 +348,7 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
     }
 
     private CommandResponse decodeCmdResponse(ChannelBuffer buf, int dataLength, Charset charset) {
-        String response = new String(buf.readBytes(dataLength).array(), charset);
+        String response = buf.readBytes(dataLength).toString(charset);
         return new CommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
                 response);
     }

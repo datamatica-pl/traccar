@@ -26,9 +26,6 @@ import org.traccar.model.Device;
 import org.traccar.model.Position;
 
 public abstract class BaseProtocolDecoder extends ExtendedObjectDecoder {
-    
-    protected static final String CMD_RESULT_OK = "Ok";
-    protected static final String CMD_RESULT_FAIL = "Device error";
 
     private final Protocol protocol;
 

@@ -273,5 +273,16 @@ public class ProtocolTest {
         Assert.assertEquals(ChannelBuffers.hexDump(expected), ChannelBuffers.hexDump((ChannelBuffer) decodedObject));
 
     }
+    
+    protected void verifyCommandResponse(BaseProtocolDecoder decoder, Object object, CommandResponse response) throws Exception {
+        verifyDecodedCommandResponse(decoder.decode(null, null, object), response);
+    }
+    
+    private void verifyDecodedCommandResponse(Object decodedObject, CommandResponse expected) {
+        Assert.assertNotNull("command response is null", decodedObject);
+        Assert.assertTrue("not a command response", decodedObject instanceof CommandResponse);
+        Assert.assertSame("invalid response type", decodedObject.getClass(), expected.getClass());
+        Assert.assertEquals(expected.toString(), decodedObject.toString());
+    }
 
 }

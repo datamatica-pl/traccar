@@ -5,19 +5,17 @@
  */
 package org.traccar.model;
 
+import java.util.Objects;
 import org.traccar.database.ActiveDevice;
 
 public class CommandResponse {
-    private String data;
-    private ActiveDevice activeDevice;
-    private boolean success;
+    private static final String COMMAND_RESULT_OK = "Ok";
+    private static final String COMMAND_RESULT_FAIL = "Device error";
+    
+    private final ActiveDevice activeDevice;
+    private final boolean success;
 
-    public CommandResponse(ActiveDevice activeDevice, String data) {
-        this(activeDevice, data, true);
-    }
-
-    public CommandResponse(ActiveDevice activeDevice, String data, boolean success) {
-        this.data = data;
+    public CommandResponse(ActiveDevice activeDevice, boolean success) {
         this.activeDevice = activeDevice;
         this.success = success;
     }
@@ -28,10 +26,10 @@ public class CommandResponse {
     
     public ActiveDevice getActiveDevice() {
         return activeDevice;
-    }   
-    
+    } 
+
     @Override
     public String toString() {
-        return data;
+        return success ? COMMAND_RESULT_OK : COMMAND_RESULT_FAIL;
     }
 }

@@ -1,12 +1,17 @@
 package org.traccar.protocol;
 
 import java.nio.ByteOrder;
+import org.junit.Before;
 
 import org.junit.Test;
 import org.traccar.ProtocolTest;
+import org.traccar.model.CommandResponse;
+import org.traccar.model.KeyValueCommandResponse;
 
 public class CastelProtocolDecoderTest extends ProtocolTest {
 
+    CastelProtocolDecoder decoder;
+    
     @Test
     public void testDecode() throws Exception {
 
@@ -84,6 +89,36 @@ public class CastelProtocolDecoderTest extends ProtocolTest {
         verifyPositions(decoder, binary(ByteOrder.LITTLE_ENDIAN,
                 "40405900043335343034333035303834343134330000000000400100f61a7355c11b7355710000000b00000000000000000000000400000000240e0200020106060f100b2d5a78a7076ec0fb1d00008c065f010000ac220d0a"));
 
+    }
+    
+    @Before
+    public void testInit() {
+        decoder = new CastelProtocolDecoder(new CastelProtocol());
+    }
+    
+    @Test
+    public void commandResponse_EngineOff_Ok() throws Exception {
+        verifyCommandResponse(decoder, 
+                binary(ByteOrder.LITTLE_ENDIAN,
+                "4040210005","3600000000000000000000000000000000000000","85830101","98bd0d0a"),
+                new CommandResponse(null, true));
+    }
+    
+    @Test
+    public void commandResponse_GetParams_Multiple_Ok() throws Exception {
+        KeyValueCommandResponse expected = new KeyValueCommandResponse(null);
+        expected.put(CastelProtocolDecoder.TaggedValueReader.Tag.AUTHORIZED_NUMBER.toString(), "[610915928, , , ]");
+        expected.put(CastelProtocolDecoder.TaggedValueReader.Tag.SMS_CENTER_NUMBER.toString(), "");
+        expected.put(CastelProtocolDecoder.TaggedValueReader.Tag.FIXED_UPLOAD_INTERVAL.toString(), "60 s");
+        verifyCommandResponse(decoder,
+                binary(ByteOrder.LITTLE_ENDIAN,
+                        "4040760005","3600000000000000000000000000000000000000","9201","010001000003",
+                        "0110","4200","00363130393135393238000000000000000000000000",
+                                      "01000000000000000000000000000000000000000000",
+                                      "02000000000000000000000000000000000000000000",
+                        "0850","0100","00",
+                        "0140","0200","3c00","62830d0a"),
+                expected);
     }
 
 }

@@ -18,8 +18,13 @@ package org.traccar.protocol;
 import java.net.SocketAddress;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -29,13 +34,109 @@ import org.traccar.helper.DateBuilder;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.CommandResponse;
 import org.traccar.model.Event;
+import org.traccar.model.KeyValueCommandResponse;
 import org.traccar.model.Position;
 
 public class CastelProtocolDecoder extends BaseProtocolDecoder {
+    
+    static class TaggedValueReader implements Iterable<Map.Entry<String, String>>, 
+            Iterator<Map.Entry<String, String>> {
+        enum Tag {
+            AUTHORIZED_NUMBER((short)0x0110),
+            SMS_CENTER_NUMBER((short)0x0850),
+            FIXED_UPLOAD_INTERVAL((short)0x0140);
+            
+            private static final Map<Short, Tag> map = new HashMap<>();
+            static {
+                for(Tag tag: Tag.values())
+                    map.put(tag.tagCode, tag);
+            }
+            
+            private short tagCode;
+            Tag(short tagCode) {
+                this.tagCode = tagCode;
+            }
+            
+            public static Tag valueOf(short code) {
+                return map.get(code);
+            }
+        }
+        
+        private static final int AUTHORIZED_NUMBER_COUNT = 3;
+        private static final int AUTHORIZED_NUMBER_LENGTH = 22;
+        private static final int AUTHORIZED_NUMBER_ID_LENGTH = 1;
+        
+        private ChannelBuffer buf;
+        private short fails;
+        private short successes;
+        private byte readerIndex;
+
+        public TaggedValueReader(ChannelBuffer buf) {
+            this.buf = buf;
+            fails = buf.readUnsignedByte();
+            successes = buf.readUnsignedByte();
+            readerIndex = 0;
+        }
+
+        private String readValue(Tag tag, ChannelBuffer buffer) {
+            StringBuilder sb = new StringBuilder();
+            switch(tag) {
+                case AUTHORIZED_NUMBER:
+                    sb.append("[");
+                    for(int i=0;i<AUTHORIZED_NUMBER_COUNT;++i)
+                        sb.append(readAuthorizedNumber(buffer.readBytes(AUTHORIZED_NUMBER_LENGTH))).append(", ");
+                    sb.append("]");
+                    break;
+                case SMS_CENTER_NUMBER:
+                    sb.append(readSMSCenterNumber(buffer));
+                    break;
+                case FIXED_UPLOAD_INTERVAL:
+                    sb.append(readFixedUpload(buffer)).append(" s");
+                    break;
+            }
+            return sb.toString();
+        }
+        
+        private String readAuthorizedNumber(ChannelBuffer buffer) {
+            buffer.skipBytes(AUTHORIZED_NUMBER_ID_LENGTH);
+            return buffer.toString(StandardCharsets.US_ASCII).replace("\0", "");
+        }
+        
+        private String readSMSCenterNumber(ChannelBuffer buffer) {
+            return buffer.toString(StandardCharsets.US_ASCII).replace("\0", "");
+        }
+        
+        private short readFixedUpload(ChannelBuffer buffer) {
+            return buffer.readShort();
+        }
+        
+        @Override
+        public Iterator<Map.Entry<String, String>> iterator() {
+            return this;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return readerIndex < fails + successes;
+        }
+
+        @Override
+        public Map.Entry<String, String> next() {
+            Tag tag = Tag.valueOf(ChannelBuffers.swapShort(buf.readShort()));
+            int valueLength = buf.readUnsignedShort();
+            String value = readValue(tag, buf.readBytes(valueLength));
+            readerIndex++;
+            return new AbstractMap.SimpleEntry<>(tag.toString(), value);
+        }
+    }
 
     public CastelProtocolDecoder(CastelProtocol protocol) {
         super(protocol);
     }
+    
+    private static final int RESPONSE_PACKET_COUNT_LENGTH = 1;
+    private static final int SEQUENCE_NUMBER_LENGTH = 2;
+    private static final int PACKET_NUMBER_LENGTH = 1;
 
     private static final short MSG_SC_LOGIN = 0x1001;
     private static final short MSG_SC_LOGIN_RESPONSE = (short) 0x9001;
@@ -56,7 +157,9 @@ public class CastelProtocolDecoder extends BaseProtocolDecoder {
     private static final short MSG_CC_GPS_UPLOAD_INTERVAL = 0x4001;
     private static final short MSG_PT_HEARTBEAT = 0x4003;
     private static final short MSG_PT_HEARTBEAT_RESPONSE = (short)0x8003;
-    private static final short MSG_RESPONSE = (short)0x9101;
+    private static final short MSG_COMMAND_RESPONSE = (short)0x9101;
+    private static final short MSG_GET_PARAMS_RESPONSE = (short)0x9201;
+    private static final short MSG_ENGINE_ON_OFF_RESPONSE = (short) 0x8583;
 
     private Position readPosition(ChannelBuffer buf) {
 
@@ -158,8 +261,12 @@ public class CastelProtocolDecoder extends BaseProtocolDecoder {
             return null;
         }
         
-        if(type == MSG_RESPONSE) {
-            return handleResponse(buf);
+        if(type == MSG_COMMAND_RESPONSE) {
+            return handleCommandResponse(buf);
+        } else if(type == MSG_GET_PARAMS_RESPONSE) {
+            return handleGetParamsResponse(buf);
+        } else if(type == MSG_ENGINE_ON_OFF_RESPONSE) {
+            return handleEngineOnOffResponse(buf);
         }
 
         if (version == -1) {
@@ -300,16 +407,34 @@ public class CastelProtocolDecoder extends BaseProtocolDecoder {
         return buffer;
     }
 
-    private CommandResponse handleResponse(ChannelBuffer buf) {
-        buf.skipBytes(2);//sequence number
-        if(readResponse(buf))
-            return new CommandResponse(getActiveDevice(), CMD_RESULT_OK);
+    private CommandResponse handleCommandResponse(ChannelBuffer buf) {
+        buf.skipBytes(SEQUENCE_NUMBER_LENGTH);
+        if(readCommandResponse(buf))
+            return new CommandResponse(getActiveDevice(), true);
         else
-            return new CommandResponse(getActiveDevice(), CMD_RESULT_FAIL, false);        
+            return new CommandResponse(getActiveDevice(), false);        
     }
     
-    private boolean readResponse(ChannelBuffer buf) {
+    private boolean readCommandResponse(ChannelBuffer buf) {
         byte successCount = buf.readByte();
         return successCount > 0;
+    }
+
+    private CommandResponse handleGetParamsResponse(ChannelBuffer buf) {
+        buf.skipBytes(SEQUENCE_NUMBER_LENGTH + RESPONSE_PACKET_COUNT_LENGTH + PACKET_NUMBER_LENGTH);
+        KeyValueCommandResponse response = new KeyValueCommandResponse(getActiveDevice());
+        TaggedValueReader reader = new TaggedValueReader(buf);
+        for(Map.Entry<String, String> taggedValue : reader)
+            response.put(taggedValue.getKey(), taggedValue.getValue());
+        return response;
+    }
+    
+    private CommandResponse handleEngineOnOffResponse(ChannelBuffer buf) {
+        byte action = buf.readByte();
+        byte result = buf.readByte();
+        if(result == 0x01)
+            return new CommandResponse(getActiveDevice(), true);
+        else
+            return new CommandResponse(getActiveDevice(), false);
     }
 }

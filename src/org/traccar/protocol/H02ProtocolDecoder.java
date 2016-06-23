@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.traccar.Context;
 import org.traccar.model.CommandResponse;
+import org.traccar.model.MessageCommandResponse;
 
 public class H02ProtocolDecoder extends BaseProtocolDecoder {
 
@@ -201,7 +202,7 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
         
         
         if(Character.isLetter(marker.charAt(0)) && hasDeviceId())
-            return new CommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
+            return new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
                 buf.toString(StandardCharsets.US_ASCII));
         
         // handle X mode?
@@ -212,7 +213,7 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
             
             List<Object> response = new ArrayList<>();
             response.add(position);
-            response.add(new CommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
+            response.add(new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
                     buf.toString(StandardCharsets.US_ASCII)));
             return response;
         } else if (marker.equals("$")) {

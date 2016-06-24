@@ -1,16 +1,25 @@
 package org.traccar.protocol;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.jboss.netty.buffer.ChannelBuffer;
+import org.junit.Before;
 import org.junit.Test;
 import org.traccar.ProtocolTest;
+import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.ObdInfo;
 
 public class Gt06ProtocolDecoderTest extends ProtocolTest {
 
+    private Gt06ProtocolDecoder decoder;
+    
+    @Before
+    public void testInit() {
+        decoder = new Gt06ProtocolDecoder(new Gt06Protocol());
+    }   
+    
     @Test
     public void testDecode() throws Exception {
-
-        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(new Gt06Protocol());
 
         verifyNothing(decoder, binary(
                 "787805120099abec0d0a"));
@@ -66,6 +75,16 @@ public class Gt06ProtocolDecoderTest extends ProtocolTest {
 
         verifyNothing(decoder, binary(
                 "787811010123456789012345100B3201000171930D0A"));
+    }
+    
+    @Test
+    public void login() throws Exception{
+        verifyNothing(decoder, binary("7878","0d","01","0123456789012345","0001","8cdd","0d0a"));
+    }
+    
+    @Test
+    public void testObd() throws Exception{ 
+        login();
         
         ObdInfo info = new ObdInfo();
         info.addProp(0x17, 0); //absErr
@@ -75,6 +94,76 @@ public class Gt06ProtocolDecoderTest extends ProtocolTest {
         info.addProp(0x17, 1);
         info.addProp(0x2a, 1220);
         verifyObd(decoder, binary(obdPacket("3137333d312c3261333d346334")), info);
+    }
+    
+    @Test
+    public void commandResponse_gt06_empty() throws Exception {
+        String response = "";
+        verifyGt06CommandResponse(response, StandardCharsets.US_ASCII);
+    }
+    
+    @Test
+    public void commandResponse_gt06_ascii() throws Exception {
+        String response = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet purus ultricies, ultrices odio at, suscipit lectus.";
+        verifyGt06CommandResponse(response, StandardCharsets.US_ASCII);
+    }
+    
+    @Test
+    public void commandResponse_gt06_utf16() throws Exception {
+        String response = "Zażółć gęślą jaźń.";
+        verifyGt06CommandResponse(response, StandardCharsets.UTF_16BE);
+    }
+    
+    private void verifyGt06CommandResponse(String response, Charset encoding) throws Exception {
+        login();
+        verifyCommandResponse(decoder, commandResponse78(response, encoding),
+                new MessageCommandResponse(null, response));
+    }
+    
+    private ChannelBuffer commandResponse78(String response, Charset encoding) {
+        String encodingCode = "0002";
+        int length = response.length();
+        if(encoding != StandardCharsets.US_ASCII) {
+            encodingCode = "0001";
+            length *= 2;
+        }
+        return binary("7878",String.format("%02x", length+12),"15",
+                String.format("%02x", 2+length),"12345678",stringToHex(response, encoding),encodingCode,
+                "00df","0000","0d0a");
+    }
+    
+    @Test
+    public void commandResponse_gt230_empty() throws Exception {
+        verifyGt230CommandResponse("", StandardCharsets.US_ASCII);
+    }
+    
+    @Test
+    public void commandResponse_gt230_ascii() throws Exception {
+        String response = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet purus ultricies, ultrices odio at, suscipit lectus.";
+        verifyGt230CommandResponse(response, StandardCharsets.US_ASCII);
+    }
+    
+    @Test
+    public void commandResponse_gt230_utf16() throws Exception {
+        verifyGt230CommandResponse("Zażółć gęślą jaźń", StandardCharsets.UTF_16BE);
+    }
+
+    private void verifyGt230CommandResponse(String response, Charset encoding) throws Exception {
+        login();
+        verifyCommandResponse(decoder, commandResponse79(response, encoding),
+                new MessageCommandResponse(null, response));
+    }
+
+    private ChannelBuffer commandResponse79(String response, Charset encoding) {
+        String encodingCode = "01";
+        int length = response.length();
+        if(encoding != StandardCharsets.US_ASCII) {
+            encodingCode = "02";
+            length *= 2;
+        }
+        return binary("7979",String.format("%04x",length + 10),"21",
+                "00000000",encodingCode,stringToHex(response, encoding),
+                "0001","0000","0d0a");
     }
     
     private String obdPacket(String obdData) {

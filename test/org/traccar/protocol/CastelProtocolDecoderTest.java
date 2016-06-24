@@ -12,10 +12,13 @@ public class CastelProtocolDecoderTest extends ProtocolTest {
 
     CastelProtocolDecoder decoder;
     
+    @Before
+    public void testInit() {
+        decoder = new CastelProtocolDecoder(new CastelProtocol());
+    }
+    
     @Test
     public void testDecode() throws Exception {
-
-        CastelProtocolDecoder decoder = new CastelProtocolDecoder(new CastelProtocol());
 
         verifyPosition(decoder, binary(ByteOrder.LITTLE_ENDIAN,
                 "24243f00676e6768656636313031313132393030313734002001840d0000d2deb556020602100b35360456cf09e6ebac0200000000030000000001abc10d0a"));
@@ -89,11 +92,6 @@ public class CastelProtocolDecoderTest extends ProtocolTest {
         verifyPositions(decoder, binary(ByteOrder.LITTLE_ENDIAN,
                 "40405900043335343034333035303834343134330000000000400100f61a7355c11b7355710000000b00000000000000000000000400000000240e0200020106060f100b2d5a78a7076ec0fb1d00008c065f010000ac220d0a"));
 
-    }
-    
-    @Before
-    public void testInit() {
-        decoder = new CastelProtocolDecoder(new CastelProtocol());
     }
     
     @Test

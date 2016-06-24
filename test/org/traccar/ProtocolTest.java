@@ -15,6 +15,7 @@ import org.traccar.model.Position;
 import javax.xml.bind.DatatypeConverter;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -86,6 +87,19 @@ public class ProtocolTest {
 
     protected String text(String... data) {
         return concatenateStrings(data);
+    }
+    
+    protected String stringToHex(String data) {
+        return stringToHex(data, StandardCharsets.US_ASCII);
+    }
+    
+    protected String stringToHex(String string, Charset encoding) {
+        byte[] bytes = string.getBytes(encoding);
+        StringBuilder sb = new StringBuilder();
+        for(byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 
     protected ChannelBuffer buffer(String... data) {

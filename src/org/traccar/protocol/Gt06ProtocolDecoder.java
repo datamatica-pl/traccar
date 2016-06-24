@@ -57,7 +57,7 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
     public static final int MSG_GPS_LBS_2 = 0x22;
     public static final int MSG_STATUS = 0x13;
     public static final int MSG_SATELLITE = 0x14;
-    public static final int MSG_STRING = 0x15;
+    public static final int MSG_COMMAND_RESPONSE78 = 0x15;
     public static final int MSG_GPS_LBS_STATUS_1 = 0x16;
     public static final int MSG_GPS_LBS_STATUS_2 = 0x26;
     public static final int MSG_GPS_LBS_STATUS_3 = 0x27;
@@ -71,7 +71,7 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
     public static final int MSG_COMMAND_2 = 0x82;
     
     public static final int MSG_OBD_PACKET = 0x8C;
-    public static final int MSG_CMD_RESPONSE = 0x21;
+    public static final int MSG_COMMAND_RESPONSE79 = 0x21;
 
     private static boolean isSupported(int type) {
         return hasGps(type) || hasLbs(type) || hasStatus(type);
@@ -173,10 +173,11 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
             switch(type) {
                 case MSG_OBD_PACKET:
                     return decodeObd(buf, length - 8 - 16);
-                case MSG_CMD_RESPONSE:
+                case MSG_COMMAND_RESPONSE79:
                     buf.skipBytes(4);
                     byte encoding = buf.readByte();
-                    Charset charset = Charset.forName(encoding == 0x01 ?"ASCII":"UTF16-BE");
+                    Charset charset = encoding == 0x01 ? StandardCharsets.US_ASCII
+                            : StandardCharsets.UTF_16BE;
                     return decodeCmdResponse(buf, length - 6 - 4, charset);
                 default:
                     return null;
@@ -214,7 +215,7 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
 
         } else if (hasDeviceId()) {
             
-            if (type == 0x15) {
+            if (type == MSG_COMMAND_RESPONSE78) {
                 buf.skipBytes(5);
                 byte[] encoding = buf.copy(dataLength+2, 2).array();
                 if(encoding[0] == 0x00) {

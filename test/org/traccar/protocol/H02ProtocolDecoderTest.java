@@ -1,14 +1,21 @@
 package org.traccar.protocol;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.traccar.ProtocolTest;
+import org.traccar.model.MessageCommandResponse;
 
 public class H02ProtocolDecoderTest extends ProtocolTest {
 
+    H02ProtocolDecoder decoder;
+    
+    @Before
+    public void testInit() {
+        decoder = new H02ProtocolDecoder(new H02Protocol());
+    }
+    
     @Test
     public void testDecode() throws Exception {
-
-        H02ProtocolDecoder decoder = new H02ProtocolDecoder(new H02Protocol());
         
         verifyCommandResponseAndPosition(decoder, buffer(
                 "*HQ,4210051415,V1,164549,A,0956.3869,N,08406.7068,W,000.00,000,221215,FFFFFBFF,712,01,0,0,6#"),
@@ -119,6 +126,21 @@ public class H02ProtocolDecoderTest extends ProtocolTest {
         verifyPosition(decoder, binary(
                 "24971305007205201916101533335008000073206976000000effffbffff000252776566060000000000000000000049"));
 
+    }
+    
+    @Test
+    public void login() throws Exception {
+        verifyCommandResponseAndPosition(decoder, buffer(
+                "*HQ,4210051415,V1,164549,A,0956.3869,N,08406.7068,W,000.00,000,221215,FFFFFBFF,712,01,0,0,6#"),
+                position("2015-12-22 16:45:49.000", true, 9.93978, -84.11178));
+    }
+    
+    @Test
+    public void commandResponse_ascii() throws Exception{
+        String response = "Lorem ipsum";
+        login();
+        verifyCommandResponse(decoder, binary(stringToHex(response)),
+                new MessageCommandResponse(null, response));
     }
 
 }

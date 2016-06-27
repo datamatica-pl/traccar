@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 import org.jboss.netty.channel.Channel;
 import org.traccar.Protocol;
 import org.traccar.model.Command;
-import org.traccar.model.CommandResponse;
 
 public class ActiveDevice {
     
@@ -98,6 +97,8 @@ public class ActiveDevice {
     }
     
     public void onCommandResponse(String message) {
+        if(!isWaitingForResponse())
+            return;
         timer.cancel();
         if(handler != null){
             try {
@@ -112,6 +113,8 @@ public class ActiveDevice {
     }
     
     public void onCommandFail(String reason) {
+        if(!isWaitingForResponse())
+            return;
         if(handler != null)
             try {
                 handler.getClass().getDeclaredMethod("fail", String.class)
@@ -122,5 +125,9 @@ public class ActiveDevice {
                 handler = null;
                 semaphore.release();
             }
+    }
+    
+    private synchronized boolean isWaitingForResponse() {
+        return semaphore.availablePermits() == 0;
     }
 }

@@ -41,14 +41,14 @@ public class H02FrameDecoder extends FrameDecoder {
             int index1 = buf.indexOf(buf.readerIndex(), buf.writerIndex(), (byte)'*');
             int index2 = buf.indexOf(buf.readerIndex(), buf.writerIndex(), (byte)'$');
             int index;
-            if(index1 != -1 && index2 != -1) {
+            if(index1 != -1 || index2 != -1) {
                 if(index1 != -1 && index2 != -1)
                     index = Math.min(index1, index2);
                 else
                     index = index1 != -1 ? index1 : index2;
-                return buf.readBytes(index + 1 - buf.readerIndex());
+                return buf.readBytes(index - buf.readerIndex());
             } else
-                return buf.readBytes(buf.readableBytes() - buf.readerIndex());
+                return buf.readBytes(buf.readableBytes());
         }
         
         if (marker == '*') {

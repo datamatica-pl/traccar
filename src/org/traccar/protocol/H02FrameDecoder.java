@@ -22,7 +22,8 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
 
 public class H02FrameDecoder extends FrameDecoder {
 
-    private static final int MESSAGE_LENGTH = 32;
+    private static final int MESSAGE_LENGTH = 45;
+    private static final int MESSAGE_CONTENT_LENGTH = 32;
 
     @Override
     protected Object decode(
@@ -60,10 +61,7 @@ public class H02FrameDecoder extends FrameDecoder {
             }
 
         } else if (marker == '$' && buf.readableBytes() >= MESSAGE_LENGTH) {
-
-            // Return binary message
-            return buf.readBytes(MESSAGE_LENGTH);
-
+            return buf.readBytes(MESSAGE_LENGTH).readBytes(MESSAGE_CONTENT_LENGTH);
         }
 
         return null;

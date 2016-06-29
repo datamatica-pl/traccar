@@ -111,13 +111,14 @@ public class Device {
         this.timezoneOffset = timezoneOffset;
     }
     
-    private double speedLimit;
+    private Double speedLimit;
+    private static final double UNREACHABLE_SPEED = 1e11;
 
     public double getSpeedLimit() {
-        return speedLimit;
+        return speedLimit == null ? UNREACHABLE_SPEED : speedLimit;
     }
 
-    public void setSpeedLimit(double speedLimit) {
+    public void setSpeedLimit(Double speedLimit) {
         this.speedLimit = speedLimit;
     }
     

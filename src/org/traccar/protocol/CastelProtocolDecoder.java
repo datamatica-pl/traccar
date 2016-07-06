@@ -41,6 +41,10 @@ public class CastelProtocolDecoder extends BaseProtocolDecoder {
     
     static class TaggedValueReader implements Iterable<Map.Entry<String, String>>, 
             Iterator<Map.Entry<String, String>> {
+
+        @Override
+        public void remove() {
+        }
         enum Tag {
             AUTHORIZED_NUMBER((short)0x0110),
             SMS_CENTER_NUMBER((short)0x0850),

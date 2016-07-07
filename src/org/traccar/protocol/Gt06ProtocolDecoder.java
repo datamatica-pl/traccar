@@ -18,6 +18,7 @@ package org.traccar.protocol;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.TimeZone;
 
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -278,12 +279,15 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
         Position position = new Position();
         
         readDate(buf, position);
+        position.setTime(utcToOurs(position.getDeviceTime()));
         buf.skipBytes(1); //ACC
         readObd(dataLength, buf, position);
+        buf.skipBytes(1); //quantity of positioning
         readLatLon(buf, position);
         readSpeed(position, buf);
         readCourseStatus(buf, position);
         
+        position.setDeviceId(getDeviceId());
         return position;
     }
     
@@ -353,5 +357,10 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
         String response = buf.readBytes(dataLength).toString(charset);
         return new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
                 response);
+    }
+
+    private Date utcToOurs(Date deviceTime) {
+        final int ONE_HOUR = 60*60*1000;
+        return new Date(deviceTime.getTime() + ONE_HOUR);
     }
 }

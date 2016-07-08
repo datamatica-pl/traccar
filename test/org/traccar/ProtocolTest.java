@@ -279,6 +279,11 @@ public class ProtocolTest {
             BaseProtocolEncoder encoder, Command command, ChannelBuffer expected) throws Exception {
         verifyDecodedCommand(encoder.encodeCommand(command), expected);
     }
+    
+    protected void verifyStringCommand(BaseProtocolEncoder encoder, Command command, String expected) throws Exception {
+        String encodedCommand = encoder.encodeCommand(command).toString();
+        Assert.assertEquals(expected, encodedCommand);
+    }
 
     private void verifyDecodedCommand(Object decodedObject, ChannelBuffer expected) {
 

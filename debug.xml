@@ -29,8 +29,9 @@
 
     <entry key='distance.enable'>true</entry>
 
-    <!--<entry key='filter.enable'>true</entry>
-    <entry key='filter.limit'>3600</entry>
+    <entry key='filter.enable'>true</entry>
+	<entry key='filter.future'>true</entry>
+    <!--<entry key='filter.limit'>3600</entry>
     <entry key='filter.invalid'>true</entry>
     <entry key='filter.zero'>true</entry>
     <entry key='filter.duplicate'>true</entry>

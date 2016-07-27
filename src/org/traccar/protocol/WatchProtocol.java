@@ -24,11 +24,15 @@ import org.traccar.CharacterDelimiterFrameDecoder;
 import org.traccar.TrackerServer;
 
 import java.util.List;
+import org.traccar.model.Command;
 
 public class WatchProtocol extends BaseProtocol {
 
     public WatchProtocol() {
         super("watch");
+        setSupportedCommands(
+            Command.TYPE_CUSTOM
+        );
     }
 
     @Override
@@ -40,6 +44,7 @@ public class WatchProtocol extends BaseProtocol {
                 pipeline.addLast("stringEncoder", new StringEncoder());
                 pipeline.addLast("stringDecoder", new StringDecoder());
                 pipeline.addLast("objectDecoder", new WatchProtocolDecoder(WatchProtocol.this));
+                pipeline.addLast("objectEncoder", new WatchProtocolEncoder());
             }
         });
     }

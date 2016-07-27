@@ -36,7 +36,8 @@ public class ActiveDevice {
     private final Semaphore semaphore;
     private Timer timer;
     
-    public static final int COMMAND_TIMEOUT = 15*1000;
+    // public static final int COMMAND_TIMEOUT = 15*1000;
+    public static final int COMMAND_TIMEOUT = 20*1000;
     
     private static final String CAUSE_TIMEOUT = "timeout";
 

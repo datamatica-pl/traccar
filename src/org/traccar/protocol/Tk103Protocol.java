@@ -25,11 +25,15 @@ import org.traccar.CharacterDelimiterFrameDecoder;
 import org.traccar.TrackerServer;
 
 import java.util.List;
+import org.traccar.model.Command;
 
 public class Tk103Protocol extends BaseProtocol {
 
     public Tk103Protocol() {
         super("tk103");
+        setSupportedCommands(
+            Command.TYPE_CUSTOM
+        );
     }
 
     @Override
@@ -49,6 +53,8 @@ public class Tk103Protocol extends BaseProtocol {
                 pipeline.addLast("stringEncoder", new StringEncoder());
                 pipeline.addLast("stringDecoder", new StringDecoder());
                 pipeline.addLast("objectDecoder", new Tk103ProtocolDecoder(Tk103Protocol.this));
+                pipeline.addLast("objectEncoder", new Tk103ProtocolEncoder());
+                
             }
         });
     }

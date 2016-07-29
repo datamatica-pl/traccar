@@ -30,7 +30,20 @@ public class MiniFinderProtocol extends BaseProtocol {
 
     public MiniFinderProtocol() {
         super("minifinder");
-        setSupportedCommands(Command.TYPE_CUSTOM);
+        setSupportedCommands(
+            Command.TYPE_POSITION_SINGLE,
+            Command.TYPE_POSITION_PERIODIC,
+            Command.TYPE_SET_TIMEZONE,
+            Command.TYPE_GET_STATUS,
+            Command.TYPE_REBOOT_DEVICE,
+            Command.TYPE_SET_CENTER_NUMBER,
+            Command.TYPE_SET_SOS_NUMBERS,
+            Command.TYPE_LISTEN_MODE,
+            Command.TYPE_VOICE_CALL_MODE,
+            Command.TYPE_SLEEP_MODE,
+            Command.TYPE_EXIT_SLEEP_MODE,
+            Command.TYPE_CUSTOM
+        );
     }
 
     @Override

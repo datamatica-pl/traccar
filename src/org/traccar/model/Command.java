@@ -42,7 +42,11 @@ public class Command extends Extensible {
     public static final String TYPE_DELETE_SOS_NUMBER = "deleteSOSNumber";
     public static final String TYPE_SET_CENTER_NUMBER = "setCenterNumber";
     public static final String TYPE_FACTORY_SETTINGS = "factorySettings";
+    public static final String TYPE_LISTEN_MODE = "listenMode";
+    public static final String TYPE_VOICE_CALL_MODE = "voiceCallMode";
     public static final String TYPE_EXTENDED_CUSTOM = "extendedCustom";
+    public static final String TYPE_SLEEP_MODE = "sleepMode";
+    public static final String TYPE_EXIT_SLEEP_MODE = "exitSleepMode";
 
     public static final String KEY_UNIQUE_ID = "uniqueId";
     public static final String KEY_FREQUENCY = "frequency";

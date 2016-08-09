@@ -109,7 +109,7 @@ public class WebServer {
         }
 
         WebAppContext app = new WebAppContext();
-        app.setContextPath("/app");
+        app.setContextPath("/");
         app.getSessionHandler().setSessionManager(sessionManager);
         app.setWar(config.getString("web.application"));
         handlers.addHandler(app);

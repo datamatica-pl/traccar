@@ -17,6 +17,9 @@
     <entry key='web.debug'>true</entry>
     <entry key='web.console'>true</entry>
     <entry key='web.timeout'>30000</entry>
+	
+	<entry key='api.enable'>true</entry>
+	<entry key='api.path'>..\..\SparkTest\target\spark-test-1.0-SNAPSHOT.war</entry>
 
     <entry key='geocoder.enable'>true</entry>
     <entry key='geocoder.type'>nominatim</entry>

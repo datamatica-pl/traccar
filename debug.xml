@@ -8,9 +8,9 @@
 
     <entry key='web.enable'>true</entry>
     <!--<entry key='web.address'></entry>-->
-    <entry key='web.port'>8082</entry>
     <!--<entry key='web.application'>../traccar-web/traccar-web.war</entry>
     <entry key='web.old'>true</entry>-->
+	<entry key='web.config'>conf/jetty.xml</entry>
     <entry key='web.path'>web</entry>
     <entry key='web.type'>old</entry>
     <entry key='web.application'>../traccar-web/target/traccar-web-0.12.1.war</entry>

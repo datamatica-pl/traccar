@@ -15,9 +15,11 @@
  */
 package org.traccar.web;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Writer;
-import java.net.InetSocketAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.naming.InitialContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
@@ -32,6 +34,7 @@ import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.xml.XmlConfiguration;
 import org.traccar.Config;
 import org.traccar.helper.Log;
 
@@ -44,13 +47,20 @@ public class WebServer {
     private final SessionManager sessionManager;
 
     private void initServer() {
-
-        String address = config.getString("web.address");
-        int port = config.getInteger("web.port", 8082);
-        if (address == null) {
-            server = new Server(port);
-        } else {
-            server = new Server(new InetSocketAddress(address, port));
+            FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(config.getString("web.config"));
+            XmlConfiguration conf = new XmlConfiguration(fis);
+            server = (Server)conf.configure();
+        } catch (Exception ex) {
+            Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if(fis != null)
+                    fis.close();
+            } catch (IOException ex) {
+                Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 

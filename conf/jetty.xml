@@ -7,7 +7,7 @@
 			<New id="httpConfig" class="org.eclipse.jetty.server.HttpConfiguration">
 			<!-- This says... Redirect to https://host:8443 if server returns "NOT SECURE" error -->
 				<Set name="secureScheme">https</Set>
-				<Set name="securePort">8083</Set>
+				<Set name="securePort">443</Set>
 			</New>
 		</Arg>
 		<Call name="addCustomizer">

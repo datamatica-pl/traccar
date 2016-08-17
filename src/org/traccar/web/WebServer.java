@@ -26,11 +26,14 @@ import javax.sql.DataSource;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.SessionIdManager;
 import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.session.HashSessionManager;
+import org.eclipse.jetty.server.session.JDBCSessionIdManager;
+import org.eclipse.jetty.server.session.JDBCSessionManager;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -45,13 +48,19 @@ public class WebServer {
     private final DataSource dataSource;
     private final HandlerList handlers = new HandlerList();
     private final SessionManager sessionManager;
+    private JDBCSessionIdManager sessionIdManager;
 
     private void initServer() {
-            FileInputStream fis = null;
+        FileInputStream fis = null;
         try {
             fis = new FileInputStream(config.getString("web.config"));
             XmlConfiguration conf = new XmlConfiguration(fis);
             server = (Server)conf.configure();
+            
+            sessionIdManager = new JDBCSessionIdManager(server);
+            sessionIdManager.setWorkerName("node1");
+            sessionIdManager.setDatasource(dataSource);
+            sessionManager.setSessionIdManager(sessionIdManager);
         } catch (Exception ex) {
             Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -68,7 +77,7 @@ public class WebServer {
         this.config = config;
         this.dataSource = dataSource;
 
-        sessionManager = new HashSessionManager();
+        sessionManager = new JDBCSessionManager();
         int sessionTimeout = config.getInteger("web.sessionTimeout");
         if (sessionTimeout != 0) {
             sessionManager.setMaxInactiveInterval(sessionTimeout);
@@ -127,9 +136,11 @@ public class WebServer {
 
     private void initApi() {
         if(config.getBoolean("api.enable")) {
+            JDBCSessionManager dbSessionManager = new JDBCSessionManager();
+            dbSessionManager.setSessionIdManager(sessionIdManager);
             WebAppContext app = new WebAppContext();
             app.setContextPath("/api");
-            app.getSessionHandler().setSessionManager(sessionManager);
+            app.getSessionHandler().setSessionManager(dbSessionManager);
             app.setWar(config.getString("api.path"));
             handlers.addHandler(app);
         }

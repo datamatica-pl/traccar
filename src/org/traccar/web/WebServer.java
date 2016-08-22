@@ -26,12 +26,10 @@ import javax.sql.DataSource;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.SessionIdManager;
 import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.server.session.JDBCSessionIdManager;
 import org.eclipse.jetty.server.session.JDBCSessionManager;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -123,6 +121,7 @@ public class WebServer {
         try {
             javax.naming.Context context = new InitialContext();
             context.bind("java:/DefaultDS", dataSource);
+            context.bind("java:/StringsDir", config.getString("api.stringsDir"));
         } catch (Exception error) {
             Log.warning(error);
         }

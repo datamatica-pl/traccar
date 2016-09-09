@@ -32,8 +32,6 @@ public class H02Protocol extends BaseProtocol {
         setSupportedCommands(
                 Command.TYPE_ALARM_ARM,
                 Command.TYPE_ALARM_DISARM,
-                Command.TYPE_ENGINE_STOP,
-                Command.TYPE_ENGINE_RESUME,
                 Command.TYPE_POSITION_PERIODIC,
                 Command.TYPE_SET_CENTER_NUMBER,
                 Command.TYPE_REBOOT_DEVICE,

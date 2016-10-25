@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+
+<Configure id="server" class="org.eclipse.jetty.server.Server">
+	<New id="tlsHttpConfig" class="org.eclipse.jetty.server.HttpConfiguration">
+		<Arg>
+			<New id="httpConfig" class="org.eclipse.jetty.server.HttpConfiguration">
+			<!-- This says... Redirect to https://host:8443 if server returns "NOT SECURE" error -->
+				<Set name="secureScheme">https</Set>
+				<Set name="securePort">443</Set>
+			</New>
+		</Arg>
+		<Call name="addCustomizer">
+			<Arg>
+				<New class="org.eclipse.jetty.server.SecureRequestCustomizer" />
+			</Arg>
+		</Call>
+	</New>
+	
+	<Call name="addConnector">
+		<Arg>
+			<New class="org.eclipse.jetty.server.ServerConnector">
+				<Arg>
+					<Ref id="server" />
+				</Arg>
+				<Arg name="factories">
+					<Array type="org.eclipse.jetty.server.ConnectionFactory">
+						<Item>
+							<New class="org.eclipse.jetty.server.HttpConnectionFactory">
+								<Arg name="config">
+									<Ref id="tlsHttpConfig" />
+								</Arg>
+							</New>
+						</Item>
+					</Array>
+				</Arg>
+				<Set name="port">80</Set>
+			</New>
+		</Arg>
+	</Call>
+	
+	<New id="https" class="org.eclipse.jetty.server.HttpConfiguration">
+		<Call name="addCustomizer">
+			<Arg>
+				<New class="org.eclipse.jetty.server.SecureRequestCustomizer" />
+			</Arg>
+		</Call>
+	</New>
+	
+	<New id="sslContextFactory" class="org.eclipse.jetty.util.ssl.SslContextFactory">
+		<Set name="keyStorePath">../keystore.jks</Set>
+		<Set name="keyStorePassword">developer</Set>
+		<Set name="keyManagerPassword">developer</Set>
+	</New>
+	
+	<New id="httpConnectionFactory" class="org.eclipse.jetty.server.HttpConnectionFactory">
+		<Arg><Ref id="https" /></Arg>
+	</New>
+	
+	<Call name="addConnector">
+		<Arg>
+			<New class="org.eclipse.jetty.server.ServerConnector">
+				<Arg>
+					<Ref id="server" />
+				</Arg>
+				<Arg>
+					<Ref id="sslContextFactory" />
+				</Arg>
+				<Call name="addConnectionFactory">
+					<Arg><Ref id="httpConnectionFactory" /></Arg>
+				</Call>
+				<Set name="port">443</Set>
+			</New>
+		</Arg>
+	</Call> 
+</Configure>

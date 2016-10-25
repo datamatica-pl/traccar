@@ -15,9 +15,11 @@
  */
 package org.traccar.web;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Writer;
-import java.net.InetSocketAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.naming.InitialContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
@@ -28,28 +30,13 @@ import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.session.HashSessionManager;
+import org.eclipse.jetty.server.session.JDBCSessionIdManager;
+import org.eclipse.jetty.server.session.JDBCSessionManager;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.servlet.ServletContainer;
+import org.eclipse.jetty.xml.XmlConfiguration;
 import org.traccar.Config;
-import org.traccar.api.AsyncSocketServlet;
-import org.traccar.api.CorsResponseFilter;
-import org.traccar.api.ObjectMapperProvider;
-import org.traccar.api.ResourceErrorHandler;
-import org.traccar.api.SecurityRequestFilter;
-import org.traccar.api.resource.CommandResource;
-import org.traccar.api.resource.DeviceResource;
-import org.traccar.api.resource.DevicePermissionResource;
-import org.traccar.api.resource.GroupPermissionResource;
-import org.traccar.api.resource.GroupResource;
-import org.traccar.api.resource.PositionResource;
-import org.traccar.api.resource.ServerResource;
-import org.traccar.api.resource.SessionResource;
-import org.traccar.api.resource.UserResource;
 import org.traccar.helper.Log;
 
 public class WebServer {
@@ -59,15 +46,28 @@ public class WebServer {
     private final DataSource dataSource;
     private final HandlerList handlers = new HandlerList();
     private final SessionManager sessionManager;
+    private JDBCSessionIdManager sessionIdManager;
 
     private void initServer() {
-
-        String address = config.getString("web.address");
-        int port = config.getInteger("web.port", 8082);
-        if (address == null) {
-            server = new Server(port);
-        } else {
-            server = new Server(new InetSocketAddress(address, port));
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(config.getString("web.config"));
+            XmlConfiguration conf = new XmlConfiguration(fis);
+            server = (Server)conf.configure();
+            
+            sessionIdManager = new JDBCSessionIdManager(server);
+            sessionIdManager.setWorkerName("node1");
+            sessionIdManager.setDatasource(dataSource);
+            sessionManager.setSessionIdManager(sessionIdManager);
+        } catch (Exception ex) {
+            Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if(fis != null)
+                    fis.close();
+            } catch (IOException ex) {
+                Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
@@ -75,7 +75,7 @@ public class WebServer {
         this.config = config;
         this.dataSource = dataSource;
 
-        sessionManager = new HashSessionManager();
+        sessionManager = new JDBCSessionManager();
         int sessionTimeout = config.getInteger("web.sessionTimeout");
         if (sessionTimeout != 0) {
             sessionManager.setMaxInactiveInterval(sessionTimeout);
@@ -93,7 +93,7 @@ public class WebServer {
             default:
                 initWebApp();
                 break;
-        }
+        }                
         server.setHandler(handlers);
 
         server.addBean(new ErrorHandler() {
@@ -121,6 +121,7 @@ public class WebServer {
         try {
             javax.naming.Context context = new InitialContext();
             context.bind("java:/DefaultDS", dataSource);
+            context.bind("java:/StringsDir", config.getString("api.stringsDir"));
         } catch (Exception error) {
             Log.warning(error);
         }
@@ -133,24 +134,15 @@ public class WebServer {
     }
 
     private void initApi() {
-        ServletContextHandler servletHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        servletHandler.setContextPath("/api");
-        servletHandler.getSessionHandler().setSessionManager(sessionManager);
-
-        servletHandler.addServlet(new ServletHolder(new AsyncSocketServlet()), "/socket");
-
-        ResourceConfig resourceConfig = new ResourceConfig();
-        resourceConfig.register(ObjectMapperProvider.class);
-        resourceConfig.register(JacksonFeature.class);
-        resourceConfig.register(ResourceErrorHandler.class);
-        resourceConfig.register(SecurityRequestFilter.class);
-        resourceConfig.register(CorsResponseFilter.class);
-        resourceConfig.registerClasses(ServerResource.class, SessionResource.class, CommandResource.class,
-                GroupPermissionResource.class, DevicePermissionResource.class, UserResource.class,
-                GroupResource.class, DeviceResource.class, PositionResource.class);
-        servletHandler.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), "/*");
-
-        handlers.addHandler(servletHandler);
+        if(config.getBoolean("api.enable")) {
+            JDBCSessionManager dbSessionManager = new JDBCSessionManager();
+            dbSessionManager.setSessionIdManager(sessionIdManager);
+            WebAppContext app = new WebAppContext();
+            app.setContextPath("/api");
+            app.getSessionHandler().setSessionManager(dbSessionManager);
+            app.setWar(config.getString("api.path"));
+            handlers.addHandler(app);
+        }
     }
 
     private void initConsole() {

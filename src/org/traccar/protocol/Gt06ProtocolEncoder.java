@@ -105,9 +105,14 @@ public class Gt06ProtocolEncoder extends BaseProtocolEncoder {
                 return encodeContent("SENALM,ON,2#");
             case Command.TYPE_ALARM_DISARM:
                 return encodeContent("SENALM,OFF#");
+            case Command.TYPE_GET_STATUS:
+                return encodeContent("STATUS#");
             case Command.TYPE_EXTENDED_CUSTOM:
                 String customCommand = command.getAttributes().get(Command.KEY_MESSAGE).toString();
-                return encodeContent(customCommand + "#");
+                if (!customCommand.endsWith("#")) {
+                    customCommand += "#";
+                }
+                return encodeContent(customCommand);
             default:
                 Log.warning(new UnsupportedOperationException(command.getType()));
                 break;

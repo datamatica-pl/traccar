@@ -112,26 +112,28 @@ public class ConnectionManager {
             Log.warning(error);
         }
 
-        for (long userId : Context.getPermissionsManager().getDeviceUsers(deviceId)) {
-            if (listeners.containsKey(userId)) {
-                for (UpdateListener listener : listeners.get(userId)) {
-                    listener.onUpdateDevice(device);
+        if(Context.getPermissionsManager() != null)
+            for (long userId : Context.getPermissionsManager().getDeviceUsers(deviceId)) {
+                if (listeners.containsKey(userId)) {
+                    for (UpdateListener listener : listeners.get(userId)) {
+                        listener.onUpdateDevice(device);
+                    }
                 }
             }
-        }
     }
 
     public synchronized void updatePosition(Position position) {
         long deviceId = position.getDeviceId();
         positions.put(deviceId, position);
 
-        for (long userId : Context.getPermissionsManager().getDeviceUsers(deviceId)) {
-            if (listeners.containsKey(userId)) {
-                for (UpdateListener listener : listeners.get(userId)) {
-                    listener.onUpdatePosition(position);
+        if(Context.getPermissionsManager() != null)
+            for (long userId : Context.getPermissionsManager().getDeviceUsers(deviceId)) {
+                if (listeners.containsKey(userId)) {
+                    for (UpdateListener listener : listeners.get(userId)) {
+                        listener.onUpdatePosition(position);
+                    }
                 }
             }
-        }
     }
 
     public Position getLastPosition(long deviceId) {
@@ -142,11 +144,12 @@ public class ConnectionManager {
 
         List<Position> result = new LinkedList<>();
 
-        for (long deviceId : Context.getPermissionsManager().getDevicePermissions(userId)) {
-            if (positions.containsKey(deviceId)) {
-                result.add(positions.get(deviceId));
+        if(Context.getPermissionsManager() != null)
+            for (long deviceId : Context.getPermissionsManager().getDevicePermissions(userId)) {
+                if (positions.containsKey(deviceId)) {
+                    result.add(positions.get(deviceId));
+                }
             }
-        }
 
         return result;
     }

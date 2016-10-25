@@ -20,7 +20,6 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.traccar.BaseProtocol;
 import org.traccar.TrackerServer;
-import org.traccar.model.Command;
 
 import java.util.List;
 import org.traccar.model.Command;
@@ -41,6 +40,7 @@ public class H02Protocol extends BaseProtocol {
                 Command.TYPE_SET_TIMEZONE,
                 Command.TYPE_AUTO_ALARM_DISARM,
                 Command.TYPE_AUTO_ALARM_ARM,
+                Command.TYPE_GET_STATUS,
                 Command.TYPE_CUSTOM
         );
     }

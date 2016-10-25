@@ -97,6 +97,8 @@ public class H02ProtocolEncoder extends StringProtocolEncoder {
                 return commandToSend;
             case Command.TYPE_GET_PARAMS:
                 return "param2";
+            case Command.TYPE_GET_STATUS:
+                return "status";
             case Command.TYPE_SET_TIMEZONE:
                 Long offset = (Long)command.getAttributes().get(Command.KEY_TIMEZONE);
                 Integer oneHourSeconds = 3600;

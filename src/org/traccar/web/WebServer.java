@@ -122,6 +122,7 @@ public class WebServer {
             javax.naming.Context context = new InitialContext();
             context.bind("java:/DefaultDS", dataSource);
             context.bind("java:/StringsDir", config.getString("api.stringsDir"));
+            context.bind("java:/ImagesDir", config.getString("api.imagesDir"));
         } catch (Exception error) {
             Log.warning(error);
         }

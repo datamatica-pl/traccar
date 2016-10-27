@@ -21,6 +21,7 @@
 	<entry key='api.enable'>true</entry>
 	<entry key='api.path'>../traccar-api/target/traccar-api-1.0-SNAPSHOT.war</entry>
 	<entry key='api.stringsDir'>../traccar-api/strings</entry>
+    <entry key='api.imagesDir'>../traccar-api/images</entry>
 
     <entry key='geocoder.enable'>true</entry>
     <entry key='geocoder.type'>nominatim</entry>

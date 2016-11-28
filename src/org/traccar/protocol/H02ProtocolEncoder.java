@@ -66,8 +66,11 @@ public class H02ProtocolEncoder extends StringProtocolEncoder {
             case Command.TYPE_AUTO_ALARM_DISARM:
                 return "auto0";
             case Command.TYPE_POSITION_PERIODIC:
-                String frequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
+                final String frequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
                 return "run," + frequency;
+            case Command.TYPE_POSITION_STOP:
+                final String stopFrequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
+                return "stop," + stopFrequency;
             case Command.TYPE_SET_CENTER_NUMBER:
                 String centerNumber = "";
                 commandToSend = "adm" + commandPassword;

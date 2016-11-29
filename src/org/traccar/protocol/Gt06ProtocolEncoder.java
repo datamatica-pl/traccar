@@ -97,8 +97,9 @@ public class Gt06ProtocolEncoder extends BaseProtocolEncoder {
             case Command.TYPE_REBOOT_DEVICE:
                 return encodeContent("RESET#");
             case Command.TYPE_POSITION_PERIODIC:
-                String frequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
-                return encodeContent("TIMER," + frequency + "," + frequency + "#");
+                final String frequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
+                final String frequencyStop = command.getAttributes().get(Command.KEY_FREQUENCY_STOP).toString();
+                return encodeContent("TIMER," + frequency + "," + frequencyStop + "#");
             case Command.TYPE_FACTORY_SETTINGS:
                 return encodeContent("FACTORY#");
             case Command.TYPE_ALARM_ARM:

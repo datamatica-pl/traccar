@@ -32,6 +32,7 @@ public class H02Protocol extends BaseProtocol {
                 Command.TYPE_ALARM_ARM,
                 Command.TYPE_ALARM_DISARM,
                 Command.TYPE_POSITION_PERIODIC,
+                Command.TYPE_POSITION_STOP,
                 Command.TYPE_SET_CENTER_NUMBER,
                 Command.TYPE_REBOOT_DEVICE,
                 Command.TYPE_FACTORY_SETTINGS,

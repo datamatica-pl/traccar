@@ -85,7 +85,8 @@ public class Gt06ProtocolEncoderTest extends ProtocolTest {
         
         command.setType(Command.TYPE_POSITION_PERIODIC);
         command.set(Command.KEY_FREQUENCY, 30);
-        verifyCommand(encoder, command, binary("78781680100000000054494d45522c33302c33302300003e910d0a"));
+        command.set(Command.KEY_FREQUENCY_STOP, 600);
+        verifyCommand(encoder, command, binary("78781780110000000054494d45522c33302c3630302300001df90d0a"));
         
         command.setType(Command.TYPE_FACTORY_SETTINGS);
         verifyCommand(encoder, command, binary("787812800c00000000464143544f5259230000c10a0d0a"));

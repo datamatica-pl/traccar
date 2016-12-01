@@ -50,6 +50,7 @@ public class Command extends Extensible {
 
     public static final String KEY_UNIQUE_ID = "uniqueId";
     public static final String KEY_FREQUENCY = "frequency";
+    public static final String KEY_FREQUENCY_STOP = "frequencyStop";
     public static final String KEY_TIMEZONE = "timezone";
     public static final String KEY_DEVICE_PASSWORD = "devicePassword";
     public static final String KEY_RADIUS = "radius";

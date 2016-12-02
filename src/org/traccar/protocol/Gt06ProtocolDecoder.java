@@ -260,6 +260,7 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
                         position.set(Event.KEY_IGNITION, true);
                     }
                 }
+                // End of temporary solution for problem AUTO-339
 
                 if (type == MSG_GPS_LBS_1 && buf.readableBytes() == 4 + 6) {
                     position.set(Event.KEY_ODOMETER, buf.readUnsignedInt());

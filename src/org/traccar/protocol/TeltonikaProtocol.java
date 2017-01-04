@@ -30,6 +30,8 @@ public class TeltonikaProtocol extends BaseProtocol {
         super("teltonika");
         setSupportedCommands(
                 Command.TYPE_POSITION_SINGLE,
+                Command.TYPE_POSITION_PERIODIC,
+                Command.TYPE_POSITION_STOP,
                 Command.TYPE_EXTENDED_CUSTOM);
     }
 

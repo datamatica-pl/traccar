@@ -26,6 +26,18 @@ import java.nio.charset.StandardCharsets;
 
 public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
 
+    private static final String SET_PARAM_FORMAT = "setparam %s %s";
+
+    /**
+     * Teltonica protocol command types taken from "FM1000 ST User Manual V2.8"
+     * Manual's file name: FM1000-ST-User-Manual-v-2.8.pdf
+     * Phrazes in comments like "FM1000 manual: 9.5.2.4" or "9.5.2.4" means chapter 9.5.2.4 in this document
+     */
+    private static class TeltonikaCommand {
+        public static final String HOME_NET_SEND_PERIOD_RUN = "1554"; // FM1000 manual: 9.5.2.5
+        public static final String HOME_NET_SEND_PERIOD_STOP = "1544"; // 9.5.1.3
+    }
+
     private ChannelBuffer encodeContent(String content) {
 
         ChannelBuffer buf = ChannelBuffers.dynamicBuffer();
@@ -51,6 +63,16 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
         switch (command.getType()) {
             case Command.TYPE_POSITION_SINGLE:
                 return encodeContent("getgps");
+            case Command.TYPE_POSITION_PERIODIC:
+                final String frequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
+                return encodeContent(
+                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.HOME_NET_SEND_PERIOD_RUN, frequency)
+                );
+            case Command.TYPE_POSITION_STOP:
+                final String stopFrequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
+                return encodeContent(
+                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.HOME_NET_SEND_PERIOD_STOP, stopFrequency)
+                );
             case Command.TYPE_EXTENDED_CUSTOM:
                 String customCommand = command.getAttributes().get(Command.KEY_MESSAGE).toString();
                 return encodeContent(customCommand);

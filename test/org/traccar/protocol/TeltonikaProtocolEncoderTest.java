@@ -5,20 +5,30 @@ import org.traccar.ProtocolTest;
 import org.traccar.model.Command;
 
 public class TeltonikaProtocolEncoderTest extends ProtocolTest {
-
+    
     @Test
-    public void testEncode() throws Exception {
+    public void testPositonSingleCommand() throws Exception {
 
-        TeltonikaProtocolEncoder encoder = new TeltonikaProtocolEncoder();        
+        TeltonikaProtocolEncoder encoder = new TeltonikaProtocolEncoder();
         
         Command command = new Command();
         command.setDeviceId(1);
-        command.setType(Command.TYPE_CUSTOM);
-        command.set("raw", "setdigout 11");
-//        command.set(Command.KEY_DATA, "setdigout 11"); // TODO: Zamiast tego key data, to co zwykle w custom.
+        command.setType(Command.TYPE_POSITION_SINGLE);
+        
+        verifyCommand(encoder, command, binary("00000000000000100c0105000000086765746770730d0a0100003339"));
+    }
+    
+    @Test
+    public void testExtCustomCommandObdinfo() throws Exception {
 
-        verifyCommand(encoder, command, binary("00000000000000160C01050000000E7365746469676F75742031310D0A010000E258"));
-
+        TeltonikaProtocolEncoder encoder = new TeltonikaProtocolEncoder();
+        
+        Command command = new Command();
+        command.setDeviceId(1);
+        command.setType(Command.TYPE_EXTENDED_CUSTOM);
+        
+        command.set(Command.KEY_MESSAGE, "obdinfo");
+        verifyCommand(encoder, command, binary("00000000000000110c0105000000096f6264696e666f0d0a0100000cd8"));
     }
 
 }

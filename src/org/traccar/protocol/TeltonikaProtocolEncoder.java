@@ -49,12 +49,11 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
     protected Object encodeCommand(Command command) {
 
         switch (command.getType()) {
-            case Command.TYPE_CUSTOM:
-                //return encodeContent(command.getString(Command.KEY_DATA));
-                String rawCommand = command.getAttributes().get("raw").toString();
-                return encodeContent(rawCommand);
-                //return encodeContent(" Setio 2,1");
-                
+            case Command.TYPE_POSITION_SINGLE:
+                return encodeContent("getgps");
+            case Command.TYPE_EXTENDED_CUSTOM:
+                String customCommand = command.getAttributes().get(Command.KEY_MESSAGE).toString();
+                return encodeContent(customCommand);
             default:
                 Log.warning(new UnsupportedOperationException(command.getType()));
                 break;

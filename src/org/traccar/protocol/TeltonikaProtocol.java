@@ -29,6 +29,8 @@ public class TeltonikaProtocol extends BaseProtocol {
     public TeltonikaProtocol() {
         super("teltonika");
         setSupportedCommands(
+                Command.TYPE_AUTO_ALARM_ARM,
+                Command.TYPE_AUTO_ALARM_DISARM,
                 Command.TYPE_POSITION_SINGLE,
                 Command.TYPE_POSITION_PERIODIC,
                 Command.TYPE_POSITION_STOP,

@@ -36,6 +36,10 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
     private static class TeltonikaCommand {
         public static final String HOME_NET_SEND_PERIOD_RUN = "1554"; // FM1000 manual: 9.5.2.5
         public static final String HOME_NET_SEND_PERIOD_STOP = "1544"; // 9.5.1.3
+        public static final String GET_GPS = "getgps";
+        public static final String TOWING_DETECTION = "1291"; // 9.6.15
+        public static final String TOWING_DISABLED = "0"; // 9.6.15
+        public static final String TOWING_HIGH_PRIORITY_EVENT = "2"; // 9.6.15
     }
 
     private ChannelBuffer encodeContent(String content) {
@@ -61,8 +65,18 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
     protected Object encodeCommand(Command command) {
 
         switch (command.getType()) {
+            case Command.TYPE_AUTO_ALARM_ARM:
+                return encodeContent(
+                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.TOWING_DETECTION,
+                            TeltonikaCommand.TOWING_HIGH_PRIORITY_EVENT)
+                );
+            case Command.TYPE_AUTO_ALARM_DISARM:
+                return encodeContent(
+                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.TOWING_DETECTION,
+                            TeltonikaCommand.TOWING_DISABLED)
+                );
             case Command.TYPE_POSITION_SINGLE:
-                return encodeContent("getgps");
+                return encodeContent(TeltonikaCommand.GET_GPS);
             case Command.TYPE_POSITION_PERIODIC:
                 final String frequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
                 return encodeContent(

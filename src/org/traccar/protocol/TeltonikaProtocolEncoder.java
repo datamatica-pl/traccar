@@ -40,6 +40,7 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
         public static final String TOWING_DETECTION = "1291"; // 9.6.15
         public static final String TOWING_DISABLED = "0"; // 9.6.15
         public static final String TOWING_HIGH_PRIORITY_EVENT = "2"; // 9.6.15
+        public static final String SET_AUTHORIZED_NUMBER_1 = "1260"; // 9.4.14
     }
 
     private ChannelBuffer encodeContent(String content) {
@@ -86,6 +87,14 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
                 final String stopFrequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
                 return encodeContent(
                     String.format(SET_PARAM_FORMAT, TeltonikaCommand.HOME_NET_SEND_PERIOD_STOP, stopFrequency)
+                );
+            case Command.TYPE_SET_CENTER_NUMBER:
+                String centerNumber = "";
+                if (command.getAttributes().get(Command.KEY_CENTER_NUMBER) != null) {
+                    centerNumber = command.getAttributes().get(Command.KEY_CENTER_NUMBER).toString();
+                }
+                return encodeContent(
+                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.SET_AUTHORIZED_NUMBER_1, centerNumber)
                 );
             case Command.TYPE_EXTENDED_CUSTOM:
                 String customCommand = command.getAttributes().get(Command.KEY_MESSAGE).toString();

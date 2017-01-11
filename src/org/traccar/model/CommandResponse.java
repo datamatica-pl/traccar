@@ -5,7 +5,6 @@
  */
 package org.traccar.model;
 
-import java.util.Objects;
 import org.traccar.database.ActiveDevice;
 
 public class CommandResponse {

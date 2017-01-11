@@ -17,6 +17,7 @@ package org.traccar.protocol;
 
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,9 +25,12 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.traccar.BaseProtocolDecoder;
+import org.traccar.Context;
 import org.traccar.helper.BitUtil;
 import org.traccar.helper.UnitsConverter;
+import org.traccar.model.CommandResponse;
 import org.traccar.model.Event;
+import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.Position;
 
 public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
@@ -62,10 +66,6 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
         buf.skipBytes(4); // marker
         buf.readUnsignedInt(); // data length
         int codec = buf.readUnsignedByte(); // codec
-
-        if (codec == CODEC_12) {
-            return null; // decode serial port data
-        }
 
         int count = buf.readUnsignedByte();
 
@@ -212,10 +212,24 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
         if (buf.getUnsignedShort(0) > 0) {
             parseIdentification(channel, remoteAddress, buf);
         } else {
-            return parseLocation(channel, buf);
+            if(buf.getUnsignedByte(8) == CODEC_12) {
+                return parseCmdResponse(channel, buf);
+            } else {
+                return parseLocation(channel, buf);
+            }   
         }
-
+        
         return null;
+    }
+
+    private CommandResponse parseCmdResponse(Channel channel, ChannelBuffer buf) {
+        buf.skipBytes(9); //preamble, data size, 0x0C
+        buf.skipBytes(1); //quantity - assuming 1
+        buf.skipBytes(1); //constant 0x06
+        int size = (int)buf.readUnsignedInt();
+        String response = buf.readBytes(size).toString(StandardCharsets.US_ASCII);
+        return new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
+                response);
     }
 
 }

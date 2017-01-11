@@ -2,6 +2,7 @@ package org.traccar.protocol;
 
 import org.junit.Test;
 import org.traccar.ProtocolTest;
+import org.traccar.model.MessageCommandResponse;
 
 public class TeltonikaProtocolDecoderTest extends ProtocolTest {
 
@@ -37,11 +38,9 @@ public class TeltonikaProtocolDecoderTest extends ProtocolTest {
         verifyPositions(decoder, binary(
                 "000000000000002b080100000140d4e3ec6e000cc661d01674a5e0fffc00000900000004020100f0000242322318000000000100007a04"));
         
-        verifyNothing(decoder, binary(
-                "000000000000002d0c01060000002523464d323d3236323033323736313732313339362c32363230332c30372e30322e30350d0a0100009a2e"));
-        
-        verifyNothing(decoder, binary(
-                "000000000000000a0c0206000000020d0a0200006f4e"));
+        verifyCommandResponse(decoder, binary(
+                "000000000000002d0c01060000002523464d323d3236323033323736313732313339362c32363230332c30372e30322e30350d0a0100009a2e"),
+                new MessageCommandResponse(null, "#FM2=262032761721396,26203,07.02.05\r\n"));
         
         verifyPositions(decoder, binary(
                 "00000000000000a608010000013f14a1d1ce000f0eb790209a778000ab010c0500000000000000000100003390"));

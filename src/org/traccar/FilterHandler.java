@@ -122,6 +122,15 @@ public class FilterHandler extends BaseDataHandler {
             return false;
         }
     }
+    
+    private boolean filterIncorrectCoordinates(Position position) {
+        final boolean filter = position.getLatitude() > Position.MAX_LATITUDE ||
+                                position.getLatitude() < Position.MIN_LATITUDE ||
+                                position.getLongitude() > Position.MAX_LONGITUDE ||
+                                position.getLongitude() < Position.MIN_LATITUDE;
+        
+        return filter;
+    }
 
     private boolean filter(Position p) {
 
@@ -132,8 +141,19 @@ public class FilterHandler extends BaseDataHandler {
             result = false;
         }
 
+        // Position with incorrect coordinates should always be discarded
+        if (filterIncorrectCoordinates(p)) {
+            result = true;
+        }
+
         if (result) {
-            Log.info("Position filtered from " + p.getDeviceId());
+            String errMsg = "Position filtered from " + p.getDeviceId() + ", ";
+            try {
+                errMsg += p.toString();
+            } catch (Exception e) {
+                errMsg += "could not get position details.";
+            }
+            Log.info(errMsg);
         }
 
         return result;

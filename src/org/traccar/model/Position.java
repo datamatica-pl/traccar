@@ -21,7 +21,7 @@ public class Position extends Event {
     public static long MAX_LATITUDE = 90;
     public static long MIN_LATITUDE = -90;
     public static long MAX_LONGITUDE = 180;
-    public static long MIN_LONGITUDE = 180;
+    public static long MIN_LONGITUDE = -180;
 
     private Date fixTime;
 

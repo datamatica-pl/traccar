@@ -18,6 +18,10 @@ package org.traccar.model;
 import java.util.Date;
 
 public class Position extends Event {
+    public static long MAX_LATITUDE = 90;
+    public static long MIN_LATITUDE = -90;
+    public static long MAX_LONGITUDE = 180;
+    public static long MIN_LONGITUDE = -180;
 
     private Date fixTime;
 
@@ -144,4 +148,12 @@ public class Position extends Event {
     public boolean hasObd() {
         return obdInfo != null;
     }
+
+    @Override
+    public String toString() {
+        return "Position{" + "fixTime=" + fixTime + ", latitude=" + latitude +
+                ", longitude=" + longitude + ", altitude=" + altitude + 
+                ", speed=" + speed + ", course=" + course + '}';
+    }
+    
 }

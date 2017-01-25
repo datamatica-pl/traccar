@@ -24,7 +24,7 @@ public class FilterHandlerTest {
         filtingHandler = null;
         passingHandler = null;
     }
-    
+
     private Position createPosition(
             long deviceId,
             Date time,
@@ -66,4 +66,50 @@ public class FilterHandlerTest {
         assertNotNull(passingHandler.decode(null, null, position));
     }
 
+    @Test
+    public void testFilterIncorrectCoordinates() throws Exception {
+        final double max_longitude = 180.00;
+        final double min_longitude = -180.00;
+        final double too_big_longitude = 180.01;
+        final double too_small_longitude = -180.01;
+        final double max_latitude = 90.00;
+        final double min_latitude = -90.00;
+        final double too_big_latitude = 90.01;
+        final double too_small_latitude = -90.01;
+        final double warsaw_latitude = 52.228766;
+        final double warsaw_longitude = 21.0033086;
+
+        Position position;
+
+        // Both filting and passing filters should behave the same in this test, because filtering
+        // of position with incorrect coordinates is always turned on.
+
+        position = createPosition(0, new Date(), true, too_big_latitude, max_longitude, 10, 10, 10);
+        assertNull(filtingHandler.decode(null, null, position));
+        assertNull(passingHandler.decode(null, null, position));
+
+        position = createPosition(0, new Date(), true, too_small_latitude, min_longitude, 10, 10, 10);
+        assertNull(filtingHandler.decode(null, null, position));
+        assertNull(passingHandler.decode(null, null, position));
+
+        position = createPosition(0, new Date(), true, max_latitude, too_big_longitude, 10, 10, 10);
+        assertNull(filtingHandler.decode(null, null, position));
+        assertNull(passingHandler.decode(null, null, position));
+
+        position = createPosition(0, new Date(), true, min_latitude, too_small_longitude, 10, 10, 10);
+        assertNull(filtingHandler.decode(null, null, position));
+        assertNull(passingHandler.decode(null, null, position));
+
+        position = createPosition(0, new Date(), true, warsaw_latitude, warsaw_longitude, 10, 10, 10);
+        assertNotNull(filtingHandler.decode(null, null, position));
+        assertNotNull(passingHandler.decode(null, null, position));
+
+        position = createPosition(0, new Date(), true, max_latitude, max_longitude, 10, 10, 10);
+        assertNotNull(filtingHandler.decode(null, null, position));
+        assertNotNull(passingHandler.decode(null, null, position));
+
+        position = createPosition(0, new Date(), true, min_latitude, min_longitude, 10, 10, 10);
+        assertNotNull(filtingHandler.decode(null, null, position));
+        assertNotNull(passingHandler.decode(null, null, position));
+    }
 }

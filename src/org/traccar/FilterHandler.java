@@ -127,7 +127,7 @@ public class FilterHandler extends BaseDataHandler {
         final boolean filter = position.getLatitude() > Position.MAX_LATITUDE ||
                                 position.getLatitude() < Position.MIN_LATITUDE ||
                                 position.getLongitude() > Position.MAX_LONGITUDE ||
-                                position.getLongitude() < Position.MIN_LATITUDE;
+                                position.getLongitude() < Position.MIN_LONGITUDE;
         
         return filter;
     }

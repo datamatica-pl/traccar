@@ -148,6 +148,16 @@ public class Position extends Event {
     public boolean hasObd() {
         return obdInfo != null;
     }
+    
+    public Integer getBatteryLevel() {
+        Number lvlObj = (Number)getAttributes().get(KEY_POWER);
+        if(lvlObj == null)
+            return null;
+        int level = lvlObj.intValue();
+        if(level >= 0 && level <= 6)
+            level = (level*100)/6;
+        return level;
+    }
 
     @Override
     public String toString() {

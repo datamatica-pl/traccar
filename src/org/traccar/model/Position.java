@@ -15,13 +15,22 @@
  */
 package org.traccar.model;
 
+import java.time.Clock;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class Position extends Event {
     public static long MAX_LATITUDE = 90;
     public static long MIN_LATITUDE = -90;
     public static long MAX_LONGITUDE = 180;
     public static long MIN_LONGITUDE = -180;
+
+    public static int VALID_STATUS_CORRECT_POSITION = 0;
+    public static int VALID_STATUS_ALARM = 1;
+    public static int VALID_STATUS_TIME_OUT_OF_RANGE = 2;
+    public static int VALID_STATUS_ALARM_AND_TIME_OUT_OF_RANGE = 3;
+    public static long FUTURE_TIME_ACCEPTANCE_LIMIT = TimeUnit.HOURS.toMillis(14); // Max '+' timezone is 14 hours
+    public static long PAST_TIME_ACCEPTANCE_LIMIT = TimeUnit.DAYS.toMillis(30);
 
     private Date fixTime;
 
@@ -125,22 +134,22 @@ public class Position extends Event {
     public void setAddress(String address) {
         this.address = address;
     }
-    
+
     private ObdInfo obdInfo;
     private Long obdId;
-    
+
     public ObdInfo getObdInfo(){
         return obdInfo;
     }
-    
+
     public void setObdInfo(ObdInfo obdInfo) {
         this.obdInfo = obdInfo;
     }
-    
+
     public Long getObdId() {
         return obdId;
-    } 
-    
+    }
+
     public void setObdId(Long obdId) {
         this.obdId = obdId;
     }
@@ -159,11 +168,57 @@ public class Position extends Event {
         return level;
     }
 
+    public boolean isAlarm() {
+        Boolean isAlarm = (Boolean)this.getAttributes().get(Event.KEY_ALARM);
+        if (isAlarm == null) {
+            return false;
+        } else {
+            return isAlarm;
+        }
+    }
+    
+    public boolean isTimeInAllowedRange(Clock clock) {
+        long currentTime = clock.millis();
+        long maxAllowedTime = currentTime + FUTURE_TIME_ACCEPTANCE_LIMIT;
+        long minAllowedTime = currentTime - PAST_TIME_ACCEPTANCE_LIMIT;
+        long positionTime = this.getFixTime().getTime();
+        
+        return positionTime >= minAllowedTime && positionTime <= maxAllowedTime;
+    }
+
+    private Integer validStatus;
+
+    public Integer getValidStatus() {
+        return validStatus;
+    }
+
+    public void setValidStatus(Integer validStatus) {
+        this.validStatus = validStatus;
+    }
+
+    public void checkAndSetValidStatus(Clock clock) {
+        if (isAlarm()) {
+            if (isTimeInAllowedRange(clock)) {
+                validStatus = VALID_STATUS_ALARM;
+            } else {
+                validStatus = VALID_STATUS_ALARM_AND_TIME_OUT_OF_RANGE;
+            }
+        } else if (!isTimeInAllowedRange(clock)) {
+            validStatus = VALID_STATUS_TIME_OUT_OF_RANGE;
+        } else {
+            validStatus = VALID_STATUS_CORRECT_POSITION;
+        }
+    }
+
+    public boolean hasProperValidStatus() {
+        return validStatus == null || validStatus == VALID_STATUS_CORRECT_POSITION;
+    }
+
     @Override
     public String toString() {
         return "Position{" + "fixTime=" + fixTime + ", latitude=" + latitude +
-                ", longitude=" + longitude + ", altitude=" + altitude + 
+                ", longitude=" + longitude + ", altitude=" + altitude +
                 ", speed=" + speed + ", course=" + course + '}';
     }
-    
+
 }

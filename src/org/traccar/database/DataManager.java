@@ -21,6 +21,9 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -438,6 +441,7 @@ public class DataManager implements IdentityManager {
     public void addPosition(Position position) throws SQLException {
         if(position.hasObd())
             addObd(position);
+        position.checkAndSetValidStatus(Clock.systemDefaultZone());
         position.setId(QueryBuilder.create(dataSource, getQuery("database.insertPosition"), true)
                 .setDate("now", new Date())
                 .setObject(position)

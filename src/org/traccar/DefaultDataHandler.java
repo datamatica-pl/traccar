@@ -32,13 +32,21 @@ public class DefaultDataHandler extends BaseDataHandler {
             position.setTime(new Date(position.getFixTime().getTime() + device.getTimezoneOffset()*60*1000));
             Context.getDataManager().addPosition(position);
             if (lastPosition == null || position.getFixTime().compareTo(lastPosition.getFixTime()) > 0) {
-                Context.getDataManager().updateLatestPosition(position);
                 Integer batteryLevel = position.getBatteryLevel();
                 if(batteryLevel != null)
                     Context.getDataManager().updateBatteryLevel(device.getId(), batteryLevel);
+                if (position.hasProperValidStatus()) {
+                    Context.getDataManager().updateLatestPosition(position);
+                }
             }
+            
         } catch (Exception error) {
             Log.warning(error);
+            try {
+                Log.warning("Position can't be handled: " + position.toString());
+            } catch (Exception e) {
+                Log.warning("Not handled position could not be logge: " + e.getMessage());
+            }
         }
 
         return position;

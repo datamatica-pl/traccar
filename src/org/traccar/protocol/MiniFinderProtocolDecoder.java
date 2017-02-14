@@ -24,6 +24,7 @@ import org.traccar.helper.DateBuilder;
 import org.traccar.helper.Parser;
 import org.traccar.helper.PatternBuilder;
 import org.traccar.model.Event;
+import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.Position;
 
 public class MiniFinderProtocolDecoder extends BaseProtocolDecoder {
@@ -62,6 +63,8 @@ public class MiniFinderProtocolDecoder extends BaseProtocolDecoder {
 
             identify(sentence.substring(3, sentence.length()), channel, remoteAddress);
 
+        } else if(sentence.startsWith("!3") || sentence.startsWith("!4")) {
+            return new MessageCommandResponse(getActiveDevice(), sentence.substring(3));
         } else if (sentence.matches("![A-D].*") && hasDeviceId()) {
 
             Parser parser = new Parser(PATTERN, sentence);

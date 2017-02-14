@@ -157,6 +157,13 @@ public class Position extends Event {
     public boolean hasObd() {
         return obdInfo != null;
     }
+    
+    public Integer getBatteryLevel() {
+        Number lvlObj = (Number)getAttributes().get(KEY_BATTERY);
+        if(lvlObj == null)
+            return null;
+        return lvlObj.intValue();
+    }
 
     public boolean isAlarm() {
         Boolean isAlarm = (Boolean)this.getAttributes().get(Event.KEY_ALARM);

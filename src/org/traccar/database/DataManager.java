@@ -48,6 +48,7 @@ import org.traccar.model.Device;
 import org.traccar.model.Group;
 import org.traccar.model.GroupPermission;
 import org.traccar.model.DevicePermission;
+import static org.traccar.model.Event.KEY_POWER;
 import org.traccar.model.ObdInfo;
 import org.traccar.model.Position;
 import org.traccar.model.Server;
@@ -360,13 +361,6 @@ public class DataManager implements IdentityManager {
                 .setObject(device)
                 .executeUpdate();
     }
-    
-    public void updateSpeedAlarm(long deviceId, boolean speedAlarm) throws SQLException {
-        QueryBuilder.create(dataSource, getQuery("database.updateSpeedAlarm"))
-                .setLong("id", deviceId)
-                .setBoolean("speedAlarm", speedAlarm)
-                .executeUpdate();
-    }
 
     public void removeDevice(long deviceId) throws SQLException {
         QueryBuilder.create(dataSource, getQuery("database.deleteDevice"))
@@ -484,4 +478,11 @@ public class DataManager implements IdentityManager {
         position.setObdId(builder.executeUpdate());
     }
 
+    public void updateBatteryLevel(long deviceId, Integer batteryLevel) throws SQLException {
+        QueryBuilder.create(dataSource, getQuery("database.updateBatteryLevel"))
+                .setLong("deviceId", deviceId)
+                .setInteger("batteryLevel", batteryLevel)
+                .setDate("now", new Date())
+                .executeUpdate();
+    }
 }

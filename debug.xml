@@ -167,11 +167,6 @@
     <entry key='database.updateDeviceStatus'>
         UPDATE devices SET status = :status, lastUpdate = :lastUpdate WHERE id = :id;
     </entry>
-	
-	<entry key='database.updateSpeedAlarm'>
-		UPDATE devices SET speedAlarm = :speedAlarm
-		WHERE id = :id;
-	</entry>
 
     <entry key='database.deleteDevice'>
         DELETE FROM devices WHERE id = :id;
@@ -238,15 +233,11 @@
         valid, latitude, longitude, altitude, speed, course, address, other AS attributes 
         FROM positions WHERE id IN (SELECT latestPosition_id FROM devices);
     </entry>
-
-    <!--
+	
     <entry key='database.updateLatestPosition'>
-        UPDATE devices SET positionId = :id WHERE id = :deviceId;
-    </entry>
-    -->
-    
-    <entry key='database.updateLatestPosition'>
-        UPDATE devices SET latestPosition_id = :id WHERE id = :deviceId;
+        UPDATE devices 
+		SET latestPosition_id = :id 
+		WHERE id = :deviceId;
     </entry>
 	
 	
@@ -254,6 +245,12 @@
 		INSERT INTO obd_info(ECMErr, ABSErr, SRSErr, RemainOilL, RemainOilPercent, InstFuelConsumptionKM, InstFuelConsumptionH, OilLife, OilPressure, WaterTemperature, RelPosOfAccPedal, AccPedalPressed, AdditionalInfo) 
 		VALUES 
 		(:ECMErr, :ABSErr, :SRSErr, :RemainOilL, :RemainOilPercent, :InstFuelConsumptionKM, :InstFuelConsumptionH, :OilLife, :OilPressure, :WaterTemperature, :RelPosOfAccPedal, :AccPedalPressed, :attributes);
+	</entry>
+	
+	<entry key="database.updateBatteryLevel">
+		UPDATE devices
+		SET battery = :batteryLevel, battTime = :now
+		WHERE id = :deviceId
 	</entry>
 
     <!-- PROTOCOL CONFIG -->

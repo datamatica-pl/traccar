@@ -159,13 +159,10 @@ public class Position extends Event {
     }
     
     public Integer getBatteryLevel() {
-        Number lvlObj = (Number)getAttributes().get(KEY_POWER);
+        Number lvlObj = (Number)getAttributes().get(KEY_BATTERY);
         if(lvlObj == null)
             return null;
-        int level = lvlObj.intValue();
-        if(level >= 0 && level <= 6)
-            level = (level*100)/6;
-        return level;
+        return lvlObj.intValue();
     }
 
     public boolean isAlarm() {

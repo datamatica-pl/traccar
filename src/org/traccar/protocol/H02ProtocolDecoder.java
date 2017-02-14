@@ -97,7 +97,9 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
         position.setTime(dateBuilder.getDate());
 
         double latitude = readCoordinate(buf, false);
-        position.set(Position.KEY_POWER, buf.readByte());
+        byte power = buf.readByte();
+        position.set(Position.KEY_POWER, power);
+        position.set(Position.KEY_BATTERY, Math.round(power*100F/6F));
         double longitude = readCoordinate(buf, true);
 
         int flags = buf.readUnsignedByte() & 0x0f;

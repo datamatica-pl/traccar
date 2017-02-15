@@ -98,7 +98,7 @@ public class MiniFinderProtocolDecoder extends BaseProtocolDecoder {
 
                 position.setAltitude(parser.nextDouble());
 
-                position.set(Event.KEY_BATTERY, parser.next());
+                position.set(Event.KEY_BATTERY, Integer.parseInt(parser.next()));
                 position.set(Event.KEY_SATELLITES, parser.next());
 
             }

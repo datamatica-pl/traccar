@@ -253,6 +253,18 @@
 		WHERE id = :deviceId
 	</entry>
 
+	<entry key="database.updatePosFreq">
+		UPDATE devices
+		SET positionFreq = :positionFreq, lastUpdate = :now
+		WHERE id = :deviceId
+	</entry>
+	
+	<entry key="database.updateAutoArm">
+		UPDATE devices
+		SET autoArm = :autoArm, lastUpdate = :now
+		WHERE id = :deviceId
+	</entry>
+	
     <!-- PROTOCOL CONFIG -->
 
     <entry key='gps103.port'>5001</entry>

@@ -62,4 +62,5 @@ public class Command extends Extensible {
     public static final String KEY_SOS_NUMBER_3 = "SOSNumber3";
     public static final String KEY_SOS_NUMBER = "SOSNumber";
     public static final String KEY_CENTER_NUMBER = "centerNumber";
+    public static final String KEY_USER_ID = "userId";
 }

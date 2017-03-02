@@ -17,12 +17,14 @@ package org.traccar.database;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.SocketAddress;
+import java.sql.SQLException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jboss.netty.channel.Channel;
+import org.traccar.Context;
 import org.traccar.Protocol;
 import org.traccar.model.Command;
 
@@ -35,6 +37,7 @@ public class ActiveDevice {
     private Object handler;
     private final Semaphore semaphore;
     private Timer timer;
+    private Command processedCommand;
     
     public static final int COMMAND_TIMEOUT = 15*1000;
     
@@ -68,6 +71,7 @@ public class ActiveDevice {
         lockChannel();
         this.handler = handler;
         try{
+            processedCommand = command;
             protocol.sendCommand(this, command);
         }catch(Exception e) {
             onCommandFail(e.toString());
@@ -96,9 +100,11 @@ public class ActiveDevice {
         }, COMMAND_TIMEOUT);
     }
     
-    public void onCommandResponse(String message) {
+    public void onCommandResponse(String message) throws SQLException {
         if(!isWaitingForResponse())
             return;
+        Context.getDataManager().updateCmdStatus(processedCommand);
+        processedCommand = null;
         timer.cancel();
         if(handler != null){
             try {

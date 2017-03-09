@@ -33,6 +33,7 @@ import org.traccar.helper.Log;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.CommandResponse;
 import org.traccar.model.Event;
+import org.traccar.model.KeyValueCommandResponse;
 import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.ObdInfo;
 import org.traccar.model.Position;
@@ -371,6 +372,16 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
 
     private CommandResponse decodeCmdResponse(ChannelBuffer buf, int dataLength, Charset charset) {
         String response = buf.readBytes(dataLength).toString(charset);
+        if(response.contains(";")) {
+            KeyValueCommandResponse kvResp = new KeyValueCommandResponse(getActiveDevice());
+            String[] pairs = response.split(";");
+            for(int i=0; i<pairs.length;++i) {
+                String[] parts = pairs[i].split(":");
+                if(parts.length == 2)
+                    kvResp.put(parts[0], parts[1]);
+            }
+            return kvResp;
+        }
         return new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
                 response);
     }

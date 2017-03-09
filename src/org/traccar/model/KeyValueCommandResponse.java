@@ -2,7 +2,6 @@ package org.traccar.model;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import org.traccar.database.ActiveDevice;
 
 public class KeyValueCommandResponse extends CommandResponse{
@@ -15,7 +14,7 @@ public class KeyValueCommandResponse extends CommandResponse{
 
     public KeyValueCommandResponse(ActiveDevice activeDevice, boolean success) {
         super(activeDevice, success);
-        map = new HashMap<String, Object>();
+        map = new HashMap<>();
     }
     
     public void put(String key, Object value) {

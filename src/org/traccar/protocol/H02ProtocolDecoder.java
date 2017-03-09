@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.traccar.Context;
 import org.traccar.model.CommandResponse;
+import org.traccar.model.KeyValueCommandResponse;
 import org.traccar.model.MessageCommandResponse;
 
 public class H02ProtocolDecoder extends BaseProtocolDecoder {
@@ -215,8 +216,20 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
             
             List<Object> response = new ArrayList<>();
             response.add(position);
-            response.add(new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
+            String resp = buf.toString(StandardCharsets.US_ASCII);
+            if(resp.contains(",")) {
+                KeyValueCommandResponse kvResp = new KeyValueCommandResponse(getActiveDevice());
+                String[] pairs = resp.split(";");
+                for(int i=0; i<pairs.length;++i) {
+                    String[] parts = pairs[i].split(":");
+                    if(parts.length == 2)
+                        kvResp.put(parts[0], parts[1]);
+                }
+                response.add(kvResp);
+            } else {
+                response.add(new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
                     buf.toString(StandardCharsets.US_ASCII)));
+            }
             return response;
         } else if (marker.equals("$")) {
             return decodeBinary(buf, channel, remoteAddress);

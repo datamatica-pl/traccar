@@ -22,8 +22,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -49,8 +47,6 @@ import org.traccar.model.Device;
 import org.traccar.model.Group;
 import org.traccar.model.GroupPermission;
 import org.traccar.model.DevicePermission;
-import static org.traccar.model.Event.KEY_POWER;
-import org.traccar.model.ObdInfo;
 import org.traccar.model.Position;
 import org.traccar.model.Server;
 import org.traccar.model.User;
@@ -488,8 +484,9 @@ public class DataManager implements IdentityManager {
     }
 
     void updateCmdStatus(Command cmd) throws SQLException {      
-        if(Command.TYPE_POSITION_PERIODIC.equals(cmd.getType())) {
-            Long positionFreq = (Long)cmd.getAttributes().get(Command.KEY_FREQUENCY);
+        if(Command.TYPE_POSITION_PERIODIC.equals(cmd.getType())
+                && cmd.getAttributes().get(Command.KEY_FREQUENCY) != null) {
+            Long positionFreq = Long.parseLong(cmd.getAttributes().get(Command.KEY_FREQUENCY).toString());
             QueryBuilder.create(dataSource, getQuery("database.updatePosFreq"))
                     .setLong("deviceId", cmd.getDeviceId())
                     .setLong("positionFreq", positionFreq)

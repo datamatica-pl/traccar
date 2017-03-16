@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.traccar.Context;
-import org.traccar.model.CommandResponse;
+import static org.traccar.model.KeyValueCommandResponse.*;
 import org.traccar.model.KeyValueCommandResponse;
 import org.traccar.model.MessageCommandResponse;
 
@@ -218,13 +218,7 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
             response.add(position);
             String resp = buf.toString(StandardCharsets.US_ASCII);
             if(resp.contains(",")) {
-                KeyValueCommandResponse kvResp = new KeyValueCommandResponse(getActiveDevice());
-                String[] pairs = resp.split(";");
-                for(int i=0; i<pairs.length;++i) {
-                    String[] parts = pairs[i].split(":");
-                    if(parts.length == 2)
-                        kvResp.put(parts[0], parts[1]);
-                }
+                KeyValueCommandResponse kvResp = decodeCommandResponse(resp);
                 response.add(kvResp);
             } else {
                 response.add(new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
@@ -236,6 +230,37 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
         }
 
         return null;
+    }
+
+    private KeyValueCommandResponse decodeCommandResponse(String resp) {
+        KeyValueCommandResponse kvResp = new KeyValueCommandResponse(getActiveDevice());
+        String[] pairs = resp.split(";");
+        for(int i=0; i<pairs.length;++i) {
+            String[] parts = pairs[i].split(":");
+            if(parts.length == 2 && parts[0] != null){
+                kvResp.put(normalizeKey(parts[0]), parts[1]);
+            }
+        }
+        return kvResp;
+    }
+    
+    private String normalizeKey(String dKey) {
+        dKey = dKey.trim();
+        if("BAT".equalsIgnoreCase(dKey))
+            return KEY_BATTERY;
+        else if("GPRS".equalsIgnoreCase(dKey))
+            return KEY_GPRS;
+        else if("GSM".equalsIgnoreCase(dKey))
+            return KEY_GSM;
+        else if("Power".equalsIgnoreCase(dKey))
+            return KEY_POWER;
+        else if("GPS".equalsIgnoreCase(dKey))
+            return KEY_GPS;
+        else if("ACC".equalsIgnoreCase(dKey))
+            return KEY_ACC;
+        else if("OIL".equalsIgnoreCase(dKey))
+            return KEY_OIL;
+        return dKey;
     }
 
 }

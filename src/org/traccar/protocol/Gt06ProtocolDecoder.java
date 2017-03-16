@@ -34,6 +34,7 @@ import org.traccar.helper.UnitsConverter;
 import org.traccar.model.CommandResponse;
 import org.traccar.model.Event;
 import org.traccar.model.KeyValueCommandResponse;
+import static org.traccar.model.KeyValueCommandResponse.*;
 import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.ObdInfo;
 import org.traccar.model.Position;
@@ -378,12 +379,43 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
             for(int i=0; i<pairs.length;++i) {
                 String[] parts = pairs[i].split(":");
                 if(parts.length == 2)
-                    kvResp.put(parts[0], parts[1]);
+                    kvResp.put(normalizeKey(parts[0]), parts[1]);
             }
             return kvResp;
         }
         return new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
                 response);
+    }
+    
+    private String normalizeKey(String dKey) {
+        dKey = dKey.trim();
+        if("ACC".equalsIgnoreCase(dKey)) {
+            return KEY_ACC;
+        } else if("DEFENSE".equalsIgnoreCase(dKey))
+            return KEY_DEFENSE;
+        else if("DEFENSE TIME".equalsIgnoreCase(dKey))
+            return KEY_DEFENSE_TIME;
+        else if("GPRS".equalsIgnoreCase(dKey))
+            return KEY_GPRS;
+        else if("GPS".equalsIgnoreCase(dKey))
+            return KEY_GPS;
+        else if("GSM SIGNAL LEVEL".equalsIgnoreCase(dKey))
+            return KEY_GSM;
+        else if("SENDS".equalsIgnoreCase(dKey))
+            return KEY_SENDS;
+        else if("SENSORSET".equalsIgnoreCase(dKey))
+            return KEY_SENSORSET;
+        else if("TIMER".equalsIgnoreCase(dKey))
+            return KEY_POSITION_T;
+        else if("DISTANCE".equalsIgnoreCase(dKey))
+            return KEY_POSITION_D;
+        else if("TIMEZONE".equalsIgnoreCase(dKey))
+            return KEY_TIME_ZONE;
+        else if("BATTERY".equalsIgnoreCase(dKey))
+            return KEY_BATTERY;
+        else if("IMEI".equalsIgnoreCase(dKey))
+            return KEY_IMEI;
+        return dKey;
     }
 
     private Date utcToOurs(Date deviceTime) {

@@ -25,6 +25,7 @@ import org.traccar.helper.Parser;
 import org.traccar.helper.PatternBuilder;
 import org.traccar.model.Event;
 import org.traccar.model.KeyValueCommandResponse;
+import static org.traccar.model.KeyValueCommandResponse.*;
 import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.Position;
 
@@ -69,9 +70,9 @@ public class MiniFinderProtocolDecoder extends BaseProtocolDecoder {
         } else if(sentence.startsWith("!4")) {
             KeyValueCommandResponse kvResp = new KeyValueCommandResponse(getActiveDevice());
             String[] vals = sentence.substring(3).split(",");
-            String[] keys = new String[] {"Data transmission interval", "number A",
-                "number B", "number C", "Timezone", "Overspeed limit alarm",
-                "Movement alert", "Vibration alarm", "Others"
+            String[] keys = new String[] {"_tinterval", KEY_NUMBER_A,
+                KEY_NUMBER_B, KEY_NUMBER_C, KEY_TIME_ZONE, KEY_OVERSPEED_THRESHOLD,
+                KEY_MOVEMENT_ALARM, KEY_VIBRATION_ALARM, "_others"
             };
             for(int i=0;i<keys.length && i<vals.length;++i)
                 kvResp.put(keys[i], vals[i]);

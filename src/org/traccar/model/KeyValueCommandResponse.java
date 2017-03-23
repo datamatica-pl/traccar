@@ -6,27 +6,27 @@ import org.traccar.database.ActiveDevice;
 
 public class KeyValueCommandResponse extends CommandResponse{
     
-    public static final String KEY_BATTERY = "param_battery";
-    public static final String KEY_GPRS = "param_gprs";
-    public static final String KEY_GSM = "param_gsm";
-    public static final String KEY_POWER = "param_power";
-    public static final String KEY_GPS = "param_gps";
-    public static final String KEY_ACC = "param_acc";
-    public static final String KEY_OIL = "param_oil";
-    public static final String KEY_POSITION_T = "param_position_t";
-    public static final String KEY_NUMBER_A = "param_number_a";
-    public static final String KEY_NUMBER_B = "param_number_b";
-    public static final String KEY_NUMBER_C = "param_number_c";
-    public static final String KEY_TIME_ZONE = "param_time_zone";
-    public static final String KEY_OVERSPEED_THRESHOLD = "param_overspeed_threshold";
-    public static final String KEY_MOVEMENT_ALARM = "param_movement_alarm";
-    public static final String KEY_VIBRATION_ALARM = "param_vibration_alarm";
-    public static final String KEY_DEFENSE = "param_defense";
-    public static final String KEY_DEFENSE_TIME = "param_defense_time";
-    public static final String KEY_SENDS = "param_sends";
-    public static final String KEY_SENSORSET = "param_sensorset";
-    public static final String KEY_POSITION_D = "param_position_d";
-    public static final String KEY_IMEI = "param_imei";
+    public static final String KEY_BATTERY = "cmd_param_battery";
+    public static final String KEY_GPRS = "cmd_param_gprs";
+    public static final String KEY_GSM = "cmd_param_gsm";
+    public static final String KEY_POWER = "cmd_param_power";
+    public static final String KEY_GPS = "cmd_param_gps";
+    public static final String KEY_ACC = "cmd_param_acc";
+    public static final String KEY_OIL = "cmd_param_oil";
+    public static final String KEY_POSITION_T = "cmd_param_position_t";
+    public static final String KEY_NUMBER_A = "cmd_param_number_a";
+    public static final String KEY_NUMBER_B = "cmd_param_number_b";
+    public static final String KEY_NUMBER_C = "cmd_param_number_c";
+    public static final String KEY_TIME_ZONE = "cmd_param_time_zone";
+    public static final String KEY_OVERSPEED_THRESHOLD = "cmd_param_overspeed_threshold";
+    public static final String KEY_MOVEMENT_ALARM = "cmd_param_movement_alarm";
+    public static final String KEY_VIBRATION_ALARM = "cmd_param_vibration_alarm";
+    public static final String KEY_DEFENSE = "cmd_param_defense";
+    public static final String KEY_DEFENSE_TIME = "cmd_param_defense_time";
+    public static final String KEY_SENDS = "cmd_param_sends";
+    public static final String KEY_SENSORSET = "cmd_param_sensorset";
+    public static final String KEY_POSITION_D = "cmd_param_position_d";
+    public static final String KEY_IMEI = "cmd_param_imei";
     
     private Map<String, Object> map;
     

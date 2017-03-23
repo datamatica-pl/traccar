@@ -131,6 +131,7 @@ public class WebServer {
         app.setContextPath("/");
         app.getSessionHandler().setSessionManager(sessionManager);
         app.setWar(config.getString("web.application"));
+        app.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
         handlers.addHandler(app);
     }
 

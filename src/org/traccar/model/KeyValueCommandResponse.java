@@ -43,6 +43,10 @@ public class KeyValueCommandResponse extends CommandResponse{
         map.put(key, value);
     }
     
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+    
     @Override
     public String toString() {
         return MiscFormatter.toJsonString(map);

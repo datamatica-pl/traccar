@@ -23,6 +23,7 @@ import org.traccar.helper.BitUtil;
 import org.traccar.helper.DateBuilder;
 import org.traccar.helper.Parser;
 import org.traccar.helper.PatternBuilder;
+import org.traccar.helper.UnitsConverter;
 import org.traccar.model.Event;
 import org.traccar.model.KeyValueCommandResponse;
 import static org.traccar.model.KeyValueCommandResponse.*;
@@ -95,7 +96,7 @@ public class MiniFinderProtocolDecoder extends BaseProtocolDecoder {
 
             position.setLatitude(parser.nextDouble());
             position.setLongitude(parser.nextDouble());
-            position.setSpeed(parser.nextDouble());
+            position.setSpeed(UnitsConverter.knotsFromKph(parser.nextDouble()));
 
             position.setCourse(parser.nextDouble());
             if (position.getCourse() > 360) {

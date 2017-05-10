@@ -122,16 +122,6 @@ public class Device {
         this.speedLimit = speedLimit;
     }
     
-    private boolean speedAlarm;
-
-    public boolean isSpeedAlarm() {
-        return speedAlarm;
-    }
-    
-    public void setSpeedAlarm(boolean speedAlarm) {
-        this.speedAlarm = speedAlarm;
-    }
-    
     private String commandPassword;
     
     public String getCommandPassword() {

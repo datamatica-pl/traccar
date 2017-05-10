@@ -42,6 +42,8 @@ public class MiniFinderProtocol extends BaseProtocol {
             Command.TYPE_VOICE_CALL_MODE,
             Command.TYPE_SLEEP_MODE,
             Command.TYPE_EXIT_SLEEP_MODE,
+            Command.TYPE_SET_AGPS_ON,
+            Command.TYPE_SET_AGPS_OFF,
             Command.TYPE_CUSTOM
         );
     }

@@ -78,6 +78,10 @@ public class MiniFinderProtocolEncoder extends StringProtocolEncoder {
                 return String.format("%sSP1", commandPassword);
             case Command.TYPE_EXIT_SLEEP_MODE:
                 return String.format("%sSP0", commandPassword);
+            case Command.TYPE_SET_AGPS_ON:
+                return String.format("%sAGPS1", commandPassword);
+            case Command.TYPE_SET_AGPS_OFF:
+                return String.format("%sAGPS0", commandPassword);
             case Command.TYPE_CUSTOM:
                 return command.getAttributes().get("raw");
             default:

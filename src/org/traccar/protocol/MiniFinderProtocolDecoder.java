@@ -23,7 +23,11 @@ import org.traccar.helper.BitUtil;
 import org.traccar.helper.DateBuilder;
 import org.traccar.helper.Parser;
 import org.traccar.helper.PatternBuilder;
+import org.traccar.helper.UnitsConverter;
 import org.traccar.model.Event;
+import org.traccar.model.KeyValueCommandResponse;
+import static org.traccar.model.KeyValueCommandResponse.*;
+import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.Position;
 
 public class MiniFinderProtocolDecoder extends BaseProtocolDecoder {
@@ -62,7 +66,19 @@ public class MiniFinderProtocolDecoder extends BaseProtocolDecoder {
 
             identify(sentence.substring(3, sentence.length()), channel, remoteAddress);
 
-        } else if (sentence.matches("![A-D].*") && hasDeviceId()) {
+        } else if(sentence.startsWith("!3")) {
+            return new MessageCommandResponse(getActiveDevice(), sentence.substring(3));
+        } else if(sentence.startsWith("!4")) {
+            KeyValueCommandResponse kvResp = new KeyValueCommandResponse(getActiveDevice());
+            String[] vals = sentence.substring(3).split(",");
+            String[] keys = new String[] {"_tinterval", KEY_NUMBER_A,
+                KEY_NUMBER_B, KEY_NUMBER_C, KEY_TIME_ZONE, KEY_OVERSPEED_THRESHOLD,
+                KEY_MOVEMENT_ALARM, KEY_VIBRATION_ALARM, "_others"
+            };
+            for(int i=0;i<keys.length && i<vals.length;++i)
+                kvResp.put(keys[i], vals[i]);
+            return kvResp;
+        }else if (sentence.matches("![A-D].*") && hasDeviceId()) {
 
             Parser parser = new Parser(PATTERN, sentence);
             if (!parser.matches()) {
@@ -80,7 +96,7 @@ public class MiniFinderProtocolDecoder extends BaseProtocolDecoder {
 
             position.setLatitude(parser.nextDouble());
             position.setLongitude(parser.nextDouble());
-            position.setSpeed(parser.nextDouble());
+            position.setSpeed(UnitsConverter.knotsFromKph(parser.nextDouble()));
 
             position.setCourse(parser.nextDouble());
             if (position.getCourse() > 360) {
@@ -95,7 +111,7 @@ public class MiniFinderProtocolDecoder extends BaseProtocolDecoder {
 
                 position.setAltitude(parser.nextDouble());
 
-                position.set(Event.KEY_BATTERY, parser.next());
+                position.set(Event.KEY_BATTERY, Integer.parseInt(parser.next()));
                 position.set(Event.KEY_SATELLITES, parser.next());
 
             }

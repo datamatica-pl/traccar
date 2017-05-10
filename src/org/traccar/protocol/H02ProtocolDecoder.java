@@ -32,7 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.traccar.Context;
-import org.traccar.model.CommandResponse;
+import org.traccar.helper.Log;
+import static org.traccar.model.KeyValueCommandResponse.*;
+import org.traccar.model.KeyValueCommandResponse;
 import org.traccar.model.MessageCommandResponse;
 
 public class H02ProtocolDecoder extends BaseProtocolDecoder {
@@ -97,7 +99,9 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
         position.setTime(dateBuilder.getDate());
 
         double latitude = readCoordinate(buf, false);
-        position.set(Position.KEY_POWER, buf.readByte());
+        byte power = buf.readByte();
+        position.set(Position.KEY_POWER, power);
+        position.set(Position.KEY_BATTERY, Math.round(power*100F/6F));
         double longitude = readCoordinate(buf, true);
 
         int flags = buf.readUnsignedByte() & 0x0f;
@@ -199,28 +203,67 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
         
         ChannelBuffer buf = (ChannelBuffer) msg;
         String marker = buf.toString(0, 1, StandardCharsets.US_ASCII);
+        String content = buf.toString(StandardCharsets.US_ASCII);
         
         
-        if(Character.isLetter(marker.charAt(0)) && hasDeviceId())
-            return new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
-                buf.toString(StandardCharsets.US_ASCII));
+        if(Character.isLetter(marker.charAt(0)) && hasDeviceId()) {
+            Log.info("Decoding as command response");
+            if(content.contains(","))
+                return decodeCommandResponse(content);
+            return new MessageCommandResponse(getActiveDevice(), content);
+        }
         
         // handle X mode?
         if (marker.equals("*")) {
-            Position position = decodeText(buf.toString(StandardCharsets.US_ASCII), channel, remoteAddress);
-            if(position == null)
-                return null;
-            
-            List<Object> response = new ArrayList<>();
-            response.add(position);
-            response.add(new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
-                    buf.toString(StandardCharsets.US_ASCII)));
-            return response;
+            Position position = decodeText(content, channel, remoteAddress);
+            return position;
         } else if (marker.equals("$")) {
             return decodeBinary(buf, channel, remoteAddress);
         }
 
         return null;
+    }
+
+    private KeyValueCommandResponse decodeCommandResponse(String resp) {
+        KeyValueCommandResponse kvResp = new KeyValueCommandResponse(getActiveDevice());
+        String[] pairs = resp.split(",");
+        for(int i=0; i<pairs.length;++i) {
+            String[] parts = pairs[i].split(":");
+            if(parts.length == 2 && parts[0] != null){
+                kvResp.put(normalizeKey(parts[0]), parts[1]);
+            } else
+                Log.warning("ignoring pair:"+pairs[i]);
+        }
+        if(kvResp.isEmpty())
+            Log.warning("Command response is empty");
+        return kvResp.isEmpty() ? null : kvResp;
+    }
+    
+    private String normalizeKey(String dKey) {
+        dKey = dKey.trim();
+        if("BAT".equalsIgnoreCase(dKey))
+            return KEY_BATTERY;
+        else if("GPRS".equalsIgnoreCase(dKey))
+            return KEY_GPRS;
+        else if("GSM".equalsIgnoreCase(dKey))
+            return KEY_GSM;
+        else if("Power".equalsIgnoreCase(dKey))
+            return KEY_POWER;
+        else if("GPS".equalsIgnoreCase(dKey))
+            return KEY_GPS;
+        else if("ACC".equalsIgnoreCase(dKey))
+            return KEY_ACC;
+        else if("OIL".equalsIgnoreCase(dKey))
+            return KEY_OIL;
+        else if("SOS1".equalsIgnoreCase(dKey))
+            return KEY_NUMBER_A;
+        else if("SOS2".equalsIgnoreCase(dKey))
+            return KEY_NUMBER_B;
+        else if("movedis".equalsIgnoreCase(dKey))
+            return KEY_MOVEMENT_ALARM;
+        else if("vibtim".equalsIgnoreCase(dKey))
+            return KEY_VIBRATION_ALARM;
+        return dKey;
     }
 
 }

@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -41,11 +42,11 @@ import liquibase.resource.ResourceAccessor;
 import org.traccar.Config;
 import org.traccar.Context;
 import org.traccar.helper.Log;
+import org.traccar.model.Command;
 import org.traccar.model.Device;
 import org.traccar.model.Group;
 import org.traccar.model.GroupPermission;
 import org.traccar.model.DevicePermission;
-import org.traccar.model.ObdInfo;
 import org.traccar.model.Position;
 import org.traccar.model.Server;
 import org.traccar.model.User;
@@ -357,13 +358,6 @@ public class DataManager implements IdentityManager {
                 .setObject(device)
                 .executeUpdate();
     }
-    
-    public void updateSpeedAlarm(long deviceId, boolean speedAlarm) throws SQLException {
-        QueryBuilder.create(dataSource, getQuery("database.updateSpeedAlarm"))
-                .setLong("id", deviceId)
-                .setBoolean("speedAlarm", speedAlarm)
-                .executeUpdate();
-    }
 
     public void removeDevice(long deviceId) throws SQLException {
         QueryBuilder.create(dataSource, getQuery("database.deleteDevice"))
@@ -444,6 +438,7 @@ public class DataManager implements IdentityManager {
     public void addPosition(Position position) throws SQLException {
         if(position.hasObd())
             addObd(position);
+        position.checkAndSetValidStatus(Clock.systemDefaultZone());
         position.setId(QueryBuilder.create(dataSource, getQuery("database.insertPosition"), true)
                 .setDate("now", new Date())
                 .setObject(position)
@@ -480,4 +475,34 @@ public class DataManager implements IdentityManager {
         position.setObdId(builder.executeUpdate());
     }
 
+    public void updateBatteryLevel(long deviceId, Integer batteryLevel) throws SQLException {
+        QueryBuilder.create(dataSource, getQuery("database.updateBatteryLevel"))
+                .setLong("deviceId", deviceId)
+                .setInteger("batteryLevel", batteryLevel)
+                .setDate("now", new Date())
+                .executeUpdate();
+    }
+
+    void updateCmdStatus(Command cmd) throws SQLException {      
+        if(Command.TYPE_POSITION_PERIODIC.equals(cmd.getType())
+                && cmd.getAttributes().get(Command.KEY_FREQUENCY) != null) {
+            Long positionFreq = Long.parseLong(cmd.getAttributes().get(Command.KEY_FREQUENCY).toString());
+            QueryBuilder.create(dataSource, getQuery("database.updatePosFreq"))
+                    .setLong("deviceId", cmd.getDeviceId())
+                    .setLong("positionFreq", positionFreq)
+                    .setDate("now", new Date())
+                    .executeUpdate();
+        } else if(Command.TYPE_AUTO_ALARM_ARM.equals(cmd.getType())) {
+            QueryBuilder.create(dataSource, getQuery("database.updateAutoArm"))
+                .setLong("deviceId", cmd.getDeviceId())
+                .setBoolean("autoArm", true)
+                .setDate("now", new Date())
+                .executeUpdate();
+        } else if(Command.TYPE_AUTO_ALARM_DISARM.equals(cmd.getType()))
+            QueryBuilder.create(dataSource, getQuery("database.updateAutoArm"))
+                .setLong("deviceId", cmd.getDeviceId())
+                .setBoolean("autoArm", false)
+                .setDate("now", new Date())
+                .executeUpdate();
+    }
 }

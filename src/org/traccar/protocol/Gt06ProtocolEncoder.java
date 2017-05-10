@@ -104,7 +104,7 @@ public class Gt06ProtocolEncoder extends BaseProtocolEncoder {
                 return encodeContent("FACTORY#");
             case Command.TYPE_AUTO_ALARM_ARM:
             case Command.TYPE_ALARM_ARM:
-                return encodeContent("SENALM,ON,2#");
+                return encodeContent("SENALM,ON,1#");
             case Command.TYPE_AUTO_ALARM_DISARM:
             case Command.TYPE_ALARM_DISARM:
                 return encodeContent("SENALM,OFF#");

@@ -33,6 +33,8 @@ import org.traccar.helper.Log;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.CommandResponse;
 import org.traccar.model.Event;
+import org.traccar.model.KeyValueCommandResponse;
+import static org.traccar.model.KeyValueCommandResponse.*;
 import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.ObdInfo;
 import org.traccar.model.Position;
@@ -149,7 +151,9 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
         position.set(Event.KEY_IGNITION, BitUtil.check(flags, 1));
         // decode other flags
 
-        position.set(Event.KEY_POWER, buf.readUnsignedByte());
+        short power = buf.readUnsignedByte();
+        position.set(Event.KEY_POWER, power);
+        position.set(Event.KEY_BATTERY, Math.round(power*100F/6F));
         position.set(Event.KEY_GSM, buf.readUnsignedByte());
     }
 
@@ -247,6 +251,20 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
                 if (hasStatus(type)) {
                     decodeStatus(position, buf);
                 }
+                
+                // Temporary solution for problem AUTO-339, ignition of GT100 is often false, when it should be true,
+                // with this code which will check if problem still occurs.
+                final Boolean ignitionStatus = (Boolean)position.getAttributes().get(Event.KEY_IGNITION);
+                if (ignitionStatus == null) {
+                    String debugMsg = "AUTO-339: GT06 ignition status is null, ";
+                    debugMsg += String.format("command type: %s, ", Integer.toHexString(type));
+                    debugMsg += String.format("device id: " + Long.toString(position.getDeviceId()));
+                    Log.debug(debugMsg);
+                    if (position.getSpeed() > 0) {
+                        position.set(Event.KEY_IGNITION, true);
+                    }
+                }
+                // End of temporary solution for problem AUTO-339
 
                 if (type == MSG_GPS_LBS_1 && buf.readableBytes() == 4 + 6) {
                     position.set(Event.KEY_ODOMETER, buf.readUnsignedInt());
@@ -355,8 +373,49 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
 
     private CommandResponse decodeCmdResponse(ChannelBuffer buf, int dataLength, Charset charset) {
         String response = buf.readBytes(dataLength).toString(charset);
+        if(response.contains(";")) {
+            KeyValueCommandResponse kvResp = new KeyValueCommandResponse(getActiveDevice());
+            String[] pairs = response.split(";");
+            for(int i=0; i<pairs.length;++i) {
+                String[] parts = pairs[i].split(":");
+                if(parts.length == 2)
+                    kvResp.put(normalizeKey(parts[0]), parts[1]);
+            }
+            return kvResp;
+        }
         return new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
                 response);
+    }
+    
+    private String normalizeKey(String dKey) {
+        dKey = dKey.trim();
+        if("ACC".equalsIgnoreCase(dKey)) {
+            return KEY_ACC;
+        } else if("DEFENSE".equalsIgnoreCase(dKey))
+            return KEY_DEFENSE;
+        else if("DEFENSE TIME".equalsIgnoreCase(dKey))
+            return KEY_DEFENSE_TIME;
+        else if("GPRS".equalsIgnoreCase(dKey))
+            return KEY_GPRS;
+        else if("GPS".equalsIgnoreCase(dKey))
+            return KEY_GPS;
+        else if("GSM SIGNAL LEVEL".equalsIgnoreCase(dKey))
+            return KEY_GSM;
+        else if("SENDS".equalsIgnoreCase(dKey))
+            return KEY_SENDS;
+        else if("SENSORSET".equalsIgnoreCase(dKey))
+            return KEY_SENSORSET;
+        else if("TIMER".equalsIgnoreCase(dKey))
+            return KEY_POSITION_T;
+        else if("DISTANCE".equalsIgnoreCase(dKey))
+            return KEY_POSITION_D;
+        else if("TIMEZONE".equalsIgnoreCase(dKey))
+            return KEY_TIME_ZONE;
+        else if("BATTERY".equalsIgnoreCase(dKey))
+            return KEY_BATTERY;
+        else if("IMEI".equalsIgnoreCase(dKey))
+            return KEY_IMEI;
+        return dKey;
     }
 
     private Date utcToOurs(Date deviceTime) {

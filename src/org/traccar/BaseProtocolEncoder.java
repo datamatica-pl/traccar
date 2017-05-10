@@ -15,6 +15,7 @@
  */
 package org.traccar;
 
+import java.util.Map;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
@@ -42,8 +43,12 @@ public abstract class BaseProtocolEncoder extends OneToOneEncoder {
             // Log command
             StringBuilder s = new StringBuilder();
             s.append(String.format("[%08X] ", channel.getId()));
-            s.append("command type: ").append(command.getType()).append(", ");
-            s.append("id : ").append(command.getDeviceId()).append(" ");
+            s.append("COMMAND deviceId:").append(command.getDeviceId()).append(", ");
+            s.append("type: ").append(command.getType()).append(", ");
+            s.append("params: [");
+            for(Map.Entry<String, Object> param : command.getAttributes().entrySet())
+                s.append(param.getKey()).append(": ").append(param.getValue()).append(", ");
+            s.append("] ");
             if (encodedCommand != null) {
                 s.append("sent");
             } else {

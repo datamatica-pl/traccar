@@ -27,24 +27,26 @@ public class DefaultDataHandler extends BaseDataHandler {
     protected Position handlePosition(Position position) {
 
         try {
-            Context.getDataManager().addPosition(position);
             Position lastPosition = Context.getConnectionManager().getLastPosition(position.getDeviceId());
             Device device = Context.getDataManager().getDeviceById(position.getDeviceId());
-            if(!device.isSpeedAlarm() && position.getSpeed() > device.getSpeedLimit()) {
-                device.setSpeedAlarm(true);
-                Context.getDataManager().updateSpeedAlarm(device.getId(), true);
-            }
-            Boolean ignition = (Boolean)position.getAttributes().get(Event.KEY_IGNITION);
-            if(device.isSpeedAlarm() && ignition != null && !ignition) {
-                device.setSpeedAlarm(false);
-                Context.getDataManager().updateSpeedAlarm(device.getId(), false);
-            }
             position.setTime(new Date(position.getFixTime().getTime() + device.getTimezoneOffset()*60*1000));
+            Context.getDataManager().addPosition(position);
             if (lastPosition == null || position.getFixTime().compareTo(lastPosition.getFixTime()) > 0) {
-                Context.getDataManager().updateLatestPosition(position);
+                Integer batteryLevel = position.getBatteryLevel();
+                if(batteryLevel != null)
+                    Context.getDataManager().updateBatteryLevel(device.getId(), batteryLevel);
+                if (position.hasProperValidStatus()) {
+                    Context.getDataManager().updateLatestPosition(position);
+                }
             }
+            
         } catch (Exception error) {
             Log.warning(error);
+            try {
+                Log.warning("Position can't be handled: " + position.toString());
+            } catch (Exception e) {
+                Log.warning("Not handled position could not be logge: " + e.getMessage());
+            }
         }
 
         return position;

@@ -35,6 +35,10 @@ public class TeltonikaProtocol extends BaseProtocol {
                 Command.TYPE_POSITION_PERIODIC,
                 Command.TYPE_POSITION_STOP,
                 Command.TYPE_SET_CENTER_NUMBER,
+                Command.TYPE_REBOOT_DEVICE,
+                Command.TYPE_FACTORY_SETTINGS,
+                Command.TYPE_GET_PARAMS,
+                Command.TYPE_GET_STATUS,
                 Command.TYPE_EXTENDED_CUSTOM);
     }
 

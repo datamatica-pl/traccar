@@ -29,14 +29,18 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
     private static final String SET_PARAM_FORMAT = "setparam %s %s";
 
     /**
-     * Teltonica protocol command types taken from "FM1000 ST User Manual V2.8"
+     * Teltonika protocol command types taken from "FM1000 ST User Manual V2.8"
      * Manual's file name: FM1000-ST-User-Manual-v-2.8.pdf
-     * Phrazes in comments like "FM1000 manual: 9.5.2.4" or "9.5.2.4" means chapter 9.5.2.4 in this document
+     * Phrases in comments like "FM1000 manual: 9.5.2.4" or "9.5.2.4" means chapter 9.5.2.4 in this document
      */
     private static class TeltonikaCommand {
         public static final String HOME_NET_SEND_PERIOD_RUN = "1554"; // FM1000 manual: 9.5.2.5
         public static final String HOME_NET_SEND_PERIOD_STOP = "1544"; // 9.5.1.3
         public static final String GET_GPS = "getgps";
+        public static final String CPU_RESET = "cpureset";
+        public static final String GET_STATUS = "getstatus";
+        public static final String GET_INFO = "getinfo";
+        public static final String FACTORY_RESET = "resetprof";
         public static final String TOWING_DETECTION = "1291"; // 9.6.15
         public static final String TOWING_DISABLED = "0"; // 9.6.15
         public static final String TOWING_HIGH_PRIORITY_EVENT = "2"; // 9.6.15
@@ -96,6 +100,14 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
                 return encodeContent(
                     String.format(SET_PARAM_FORMAT, TeltonikaCommand.SET_AUTHORIZED_NUMBER_1, centerNumber)
                 );
+            case Command.TYPE_REBOOT_DEVICE:
+                return encodeContent(TeltonikaCommand.CPU_RESET);
+            case Command.TYPE_FACTORY_SETTINGS:
+                return encodeContent(TeltonikaCommand.FACTORY_RESET);
+            case Command.TYPE_GET_STATUS:
+                return encodeContent(TeltonikaCommand.GET_STATUS);
+            case Command.TYPE_GET_PARAMS:
+                return encodeContent(TeltonikaCommand.GET_INFO);
             case Command.TYPE_EXTENDED_CUSTOM:
                 String customCommand = command.getAttributes().get(Command.KEY_MESSAGE).toString();
                 return encodeContent(customCommand);

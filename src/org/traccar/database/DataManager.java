@@ -482,6 +482,14 @@ public class DataManager implements IdentityManager {
                 .setDate("now", new Date())
                 .executeUpdate();
     }
+    
+    public void updateIgnition(long deviceId, Boolean ignition) throws SQLException {
+        QueryBuilder.create(dataSource, getQuery("database.updateIgnition"))
+                .setLong("deviceId", deviceId)
+                .setBoolean("ignition", ignition)
+                .setDate("now", new Date())
+                .executeUpdate();
+    }
 
     void updateCmdStatus(Command cmd) throws SQLException {      
         if(Command.TYPE_POSITION_PERIODIC.equals(cmd.getType())

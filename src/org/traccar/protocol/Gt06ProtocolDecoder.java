@@ -231,8 +231,10 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
                     Log.warning(String.format("Unknown encoding, %02X%02X", encoding[0], encoding[1]));
                     return decodeCmdResponse(buf, dataLength-7, Charset.forName("ASCII"));
                 }
-            }
-            else if (isSupported(type)) {
+            } else if(type == MSG_COMMAND_1) {
+                buf.skipBytes(5);
+                return decodeCmdResponse(buf, dataLength - 7, Charset.forName("ASCII"));
+            } else if (isSupported(type)) {
 
                 Position position = new Position();
                 position.setDeviceId(getDeviceId());

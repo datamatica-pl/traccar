@@ -164,6 +164,10 @@ public class Position extends Event {
             return null;
         return lvlObj.intValue();
     }
+    
+    public Boolean getIgnition() {
+        return (Boolean)getAttributes().get(KEY_IGNITION);
+    }
 
     public boolean isAlarm() {
         Boolean isAlarm = (Boolean)this.getAttributes().get(Event.KEY_ALARM);

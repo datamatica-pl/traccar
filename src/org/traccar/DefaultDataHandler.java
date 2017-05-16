@@ -31,13 +31,16 @@ public class DefaultDataHandler extends BaseDataHandler {
             Device device = Context.getDataManager().getDeviceById(position.getDeviceId());
             position.setTime(new Date(position.getFixTime().getTime() + device.getTimezoneOffset()*60*1000));
             Context.getDataManager().addPosition(position);
-            if (lastPosition == null || position.getFixTime().compareTo(lastPosition.getFixTime()) > 0) {
-                Integer batteryLevel = position.getBatteryLevel();
-                if(batteryLevel != null)
-                    Context.getDataManager().updateBatteryLevel(device.getId(), batteryLevel);
-                if (position.hasProperValidStatus()) {
-                    Context.getDataManager().updateLatestPosition(position);
-                }
+            Integer batteryLevel = position.getBatteryLevel();
+            if(batteryLevel != null)
+                Context.getDataManager().updateBatteryLevel(device.getId(), batteryLevel);
+            Boolean ignition = position.getIgnition();
+            if(ignition != null)
+                Context.getDataManager().updateIgnition(device.getId(), ignition);
+            
+            if ((lastPosition == null || position.getFixTime().compareTo(lastPosition.getFixTime()) > 0)
+                    && position.hasProperValidStatus()) {
+                Context.getDataManager().updateLatestPosition(position);
             }
             
         } catch (Exception error) {

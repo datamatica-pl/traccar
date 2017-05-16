@@ -252,6 +252,12 @@
 		SET battery = :batteryLevel, battTime = :now
 		WHERE id = :deviceId
 	</entry>
+	
+	<entry key="database.updateIgnition">
+		UPDATE devices
+		SET ignition = :ignition, ignTime = :now
+		WHERE id = :deviceId
+	</entry>
 
 	<entry key="database.updatePosFreq">
 		UPDATE devices

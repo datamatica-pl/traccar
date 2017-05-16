@@ -29,22 +29,25 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
     private static final String SET_PARAM_FORMAT = "setparam %s %s";
 
     /**
-     * Teltonika protocol command types taken from "FM1000 ST User Manual V2.8"
-     * Manual's file name: FM1000-ST-User-Manual-v-2.8.pdf
-     * Phrases in comments like "FM1000 manual: 9.5.2.4" or "9.5.2.4" means chapter 9.5.2.4 in this document
+     * Teltonika protocol command types taken from "FM1000 ST User Manual V2.8" and "FMA 120 User Manual V1.03"
+     * Comments like "FM1000: 9.5.1.3" means Teltonika FM1000 manual
+     * Comments like "FM120: ..." means Teltonika FMA120 manual
      */
     private static class TeltonikaCommand {
         public static final String HOME_NET_SEND_PERIOD_RUN = "1554"; // FM1000 manual: 9.5.2.5
-        public static final String HOME_NET_SEND_PERIOD_STOP = "1544"; // 9.5.1.3
+        public static final String HOME_NET_SEND_PERIOD_STOP = "1544"; // FM1000: 9.5.1.3
         public static final String GET_GPS = "getgps";
         public static final String CPU_RESET = "cpureset";
         public static final String GET_STATUS = "getstatus";
         public static final String GET_INFO = "getinfo";
         public static final String FACTORY_RESET = "resetprof";
-        public static final String TOWING_DETECTION = "1291"; // 9.6.15
-        public static final String TOWING_DISABLED = "0"; // 9.6.15
-        public static final String TOWING_HIGH_PRIORITY_EVENT = "2"; // 9.6.15
-        public static final String SET_AUTHORIZED_NUMBER_1 = "1260"; // 9.4.14
+        public static final String TOWING_DETECTION = "1291"; // FM1000: 9.6.15
+        public static final String TOWING_DISABLED = "0"; // FM1000: 9.6.15
+        public static final String TOWING_HIGH_PRIORITY_EVENT = "2"; // FM1000: 9.6.15
+        public static final String AUTO_GEOFENCING = "1101"; // FMA120: 8.6.11
+        public static final String PARAM_DISABLE = "0";
+        public static final String PARAM_ENABLE = "1";
+        public static final String SET_AUTHORIZED_NUMBER_1 = "1260"; // FM1000: 9.4.14
     }
 
     private ChannelBuffer encodeContent(String content) {
@@ -72,13 +75,13 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
         switch (command.getType()) {
             case Command.TYPE_AUTO_ALARM_ARM:
                 return encodeContent(
-                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.TOWING_DETECTION,
-                            TeltonikaCommand.TOWING_HIGH_PRIORITY_EVENT)
+                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.AUTO_GEOFENCING,
+                            TeltonikaCommand.PARAM_ENABLE)
                 );
             case Command.TYPE_AUTO_ALARM_DISARM:
                 return encodeContent(
-                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.TOWING_DETECTION,
-                            TeltonikaCommand.TOWING_DISABLED)
+                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.AUTO_GEOFENCING,
+                            TeltonikaCommand.PARAM_DISABLE)
                 );
             case Command.TYPE_POSITION_SINGLE:
                 return encodeContent(TeltonikaCommand.GET_GPS);

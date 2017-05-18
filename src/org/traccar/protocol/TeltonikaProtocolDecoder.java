@@ -18,6 +18,7 @@ package org.traccar.protocol;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +31,8 @@ import org.traccar.helper.BitUtil;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.CommandResponse;
 import org.traccar.model.Event;
+import org.traccar.model.KeyValueCommandResponse;
+import static org.traccar.model.KeyValueCommandResponse.*;
 import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.Position;
 
@@ -228,8 +231,43 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
         buf.skipBytes(1); //constant 0x06
         int size = (int)buf.readUnsignedInt();
         String response = buf.readBytes(size).toString(StandardCharsets.US_ASCII);
+        if(response.startsWith("Data Link:") || response.startsWith("INI:")) {
+            return parseStatus(response);
+        }
         return new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
                 response);
     }
 
+    private CommandResponse parseStatus(String response) {
+        KeyValueCommandResponse kvResp = new KeyValueCommandResponse(
+            Context.getConnectionManager().getActiveDevice(getDeviceId()));
+        String[] r = response.split(":");
+        String key = r[0];
+        for(int i=1;i < r.length-1;++i) {
+            r[i] = r[i].trim();
+            int valEnd = r[i].indexOf(" ");
+            kvResp.put(normalizeKey(key), r[i].substring(0, valEnd));
+            key = r[i].substring(valEnd+1, r[i].length());
+        }
+        kvResp.put(normalizeKey(key), r[r.length-1]);
+        return kvResp;
+    }
+    
+    private String normalizeKey(String dKey) {
+        dKey = dKey.trim();
+        if("Data Link".equalsIgnoreCase(dKey)) {
+            return KEY_DATA_LINK;
+        } else if("Roaming".equalsIgnoreCase(dKey)) {
+            return KEY_ROAMING;
+        } else if("GPRS".equalsIgnoreCase(dKey)) {
+            return KEY_GPRS;
+        } else if("GPS".equalsIgnoreCase(dKey)) {
+            return KEY_GPS;
+        } else if("INI".equalsIgnoreCase(dKey)) {
+            return KEY_INIT_TIME;
+        } else if("RTC".equalsIgnoreCase(dKey)) {
+            return KEY_RTC_TIME;
+        }
+        return dKey;
+    }
 }

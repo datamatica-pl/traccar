@@ -27,6 +27,11 @@ public class KeyValueCommandResponse extends CommandResponse{
     public static final String KEY_SENSORSET = "cmd_param_sensorset";
     public static final String KEY_POSITION_D = "cmd_param_position_d";
     public static final String KEY_IMEI = "cmd_param_imei";
+    public static final String KEY_DATA_LINK = "cmd_param_data_link";
+    public static final String KEY_ROAMING = "cmd_param_roaming";
+    public static final String KEY_INIT_TIME = "cmd_param_init_time";
+    public static final String KEY_RTC_TIME = "cmd_param_rtc_time";
+    
     
     private Map<String, Object> map;
     

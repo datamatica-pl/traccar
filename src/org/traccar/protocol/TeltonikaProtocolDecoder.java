@@ -15,6 +15,7 @@
  */
 package org.traccar.protocol;
 
+import java.io.StringReader;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -231,8 +233,10 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
         buf.skipBytes(1); //constant 0x06
         int size = (int)buf.readUnsignedInt();
         String response = buf.readBytes(size).toString(StandardCharsets.US_ASCII);
-        if(response.startsWith("Data Link:") || response.startsWith("INI:")) {
+        if(response.startsWith("Data Link:")) {
             return parseStatus(response);
+        } else if(response.startsWith("INI:")) {
+            return parseParams(response);
         }
         return new MessageCommandResponse(Context.getConnectionManager().getActiveDevice(getDeviceId()),
                 response);
@@ -269,5 +273,18 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
             return KEY_RTC_TIME;
         }
         return dKey;
+    }
+
+    private CommandResponse parseParams(String response) {
+        KeyValueCommandResponse kvResp = new KeyValueCommandResponse(
+            Context.getConnectionManager().getActiveDevice(getDeviceId()));
+        Scanner s = new Scanner(new StringReader(response));
+        s.skip("INI:");
+        s.useDelimiter("RTC:");
+        kvResp.put(normalizeKey("INI"), s.next().trim());
+        s.skip("RTC:");
+        s.useDelimiter("RST:");
+        kvResp.put(normalizeKey("RTC"), s.next().trim());
+        return kvResp;
     }
 }

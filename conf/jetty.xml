@@ -51,6 +51,13 @@
 		<Set name="keyStorePath">../keystore.jks</Set>
 		<Set name="keyStorePassword">developer</Set>
 		<Set name="keyManagerPassword">developer</Set>
+		<Call name="setExcludeCipherSuites">
+			<Arg>
+				<Array type="java.lang.String">
+					<Item>syf</Item>
+				</Array>
+			</Arg>
+		</Call>
 	</New>
 	
 	<New id="httpConnectionFactory" class="org.eclipse.jetty.server.HttpConnectionFactory">

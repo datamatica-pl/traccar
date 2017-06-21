@@ -46,5 +46,5 @@ public class TeltonikaProtocolDecoderTest extends ProtocolTest {
                 "00000000000000a608010000013f14a1d1ce000f0eb790209a778000ab010c0500000000000000000100003390"));
         
     }
-
+    
 }

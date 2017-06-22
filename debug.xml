@@ -69,6 +69,14 @@
     <entry key='api.database.url'>jdbc:mysql://127.0.0.1:3306/traccar_api_metadata?allowMultiQueries=true&amp;autoReconnect=true&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;sessionVariables=sql_mode=ANSI_QUOTES</entry>
     <entry key='api.database.user'>traccar</entry>
     <entry key='api.database.password'>123</entry>
+    
+    <entry key='api.imei_manager.enabled'>true</entry>
+    <!-- Comma separated list of IP's allowed to add IMEI's to database via IMEI manager -->
+    <entry key='api.imei_manager.allowed_ips'>127.0.0.1,0:0:0:0:0:0:0:1</entry>
+    <entry key='api.imei_manager.check_imei_existence_url'>http://localhost/api/imei_manager/imei/</entry>
+    <!-- Imei manager user and password, used in API calls -->
+    <entry key='api.imei_manager.imei_manager_user'>imei_manager</entry>
+    <entry key='api.imei_manager.imei_manager_password'>123456</entry>
 
     <entry key='database.xml'>false</entry>
     <entry key='database.saveOriginal'>false</entry>

@@ -253,20 +253,6 @@ public class Gt06ProtocolDecoder extends BaseProtocolDecoder {
                 if (hasStatus(type)) {
                     decodeStatus(position, buf);
                 }
-                
-                // Temporary solution for problem AUTO-339, ignition of GT100 is often false, when it should be true,
-                // with this code which will check if problem still occurs.
-                final Boolean ignitionStatus = (Boolean)position.getAttributes().get(Event.KEY_IGNITION);
-                if (ignitionStatus == null) {
-                    String debugMsg = "AUTO-339: GT06 ignition status is null, ";
-                    debugMsg += String.format("command type: %s, ", Integer.toHexString(type));
-                    debugMsg += String.format("device id: " + Long.toString(position.getDeviceId()));
-                    Log.debug(debugMsg);
-                    if (position.getSpeed() > 0) {
-                        position.set(Event.KEY_IGNITION, true);
-                    }
-                }
-                // End of temporary solution for problem AUTO-339
 
                 if (type == MSG_GPS_LBS_1 && buf.readableBytes() == 4 + 6) {
                     position.set(Event.KEY_ODOMETER, buf.readUnsignedInt());

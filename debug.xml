@@ -17,11 +17,19 @@
     <entry key='web.debug'>true</entry>
     <entry key='web.console'>true</entry>
     <entry key='web.timeout'>30000</entry>
-	
+
 	<entry key='api.enable'>true</entry>
 	<entry key='api.path'>../traccar-api/target/traccar-api-1.0-SNAPSHOT.war</entry>
 	<entry key='api.stringsDir'>../traccar-api/strings</entry>
     <entry key='api.imagesDir'>../traccar-api/images</entry>
+
+    <entry key='api.versions.ios'>1.0.1</entry>
+    <entry key='api.versions.android'>1.0.1</entry>
+    <entry key='api.versions.iosrequired'>0.9.9</entry>
+    <entry key='api.versions.androidrequired'>0.9.9</entry>
+    <entry key='api.versions.messagekey'>message</entry>
+    <entry key='api.versions.messagelocalized'>lalal</entry>
+    <entry key='api.versions.messageurl'>google.com</entry>
 
     <entry key='geocoder.enable'>true</entry>
     <entry key='geocoder.type'>nominatim</entry>
@@ -58,18 +66,18 @@
     <entry key='database.user'>sa</entry>
     <entry key='database.password'></entry>
     -->
-    
+
     <entry key='database.driver'>com.mysql.jdbc.Driver</entry>
     <entry key='database.url'>jdbc:mysql://127.0.0.1:3306/traccar?allowMultiQueries=true&amp;autoReconnect=true&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;sessionVariables=sql_mode=ANSI_QUOTES</entry>
     <entry key='database.user'>traccar</entry>
     <entry key='database.password'>123</entry>
-    
+
     <!-- api.database properties overwrites hibernate properties in persistence.xml in traccar-api project -->
     <entry key='api.database.driver'>com.mysql.jdbc.Driver</entry>
     <entry key='api.database.url'>jdbc:mysql://127.0.0.1:3306/traccar_api_metadata?allowMultiQueries=true&amp;autoReconnect=true&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;sessionVariables=sql_mode=ANSI_QUOTES</entry>
     <entry key='api.database.user'>traccar</entry>
     <entry key='api.database.password'>123</entry>
-    
+
     <entry key='api.imei_manager.enabled'>true</entry>
     <!-- Comma separated list of IP's allowed to add IMEI's to database via IMEI manager -->
     <entry key='api.imei_manager.allowed_ips'>127.0.0.1,0:0:0:0:0:0:0:1</entry>
@@ -119,7 +127,7 @@
         SELECT * FROM users;
     </entry>
     -->
-    
+
     <entry key='database.selectUsersAll'>
         SELECT id, login AS name, email, readOnly AS readonly, admin FROM users;
     </entry>
@@ -224,7 +232,7 @@
         VALUES (:deviceId, :protocol, :now, :deviceTime, :fixTime, :valid, :latitude, :longitude, :altitude, :speed, :course, :address, :attributes);
     </entry>
     -->
-    
+
     <entry key='database.insertPosition'>
         INSERT INTO positions (device_id, protocol, serverTime, time, valid, latitude, longitude, altitude, speed, course, address, other, validStatus)
         VALUES (:deviceId, :protocol, :now, :deviceTime, :valid, :latitude, :longitude, :altitude, :speed, :course, :address, :attributes, :validStatus);
@@ -235,32 +243,32 @@
         SELECT * FROM positions WHERE id IN (SELECT positionId FROM devices);
     </entry>
     -->
-    
+
     <entry key='database.selectLatestPositions'>
-        SELECT id, protocol, device_id AS deviceId, serverTime, time AS deviceTime, time AS fixTime, 
-        valid, latitude, longitude, altitude, speed, course, address, other AS attributes 
+        SELECT id, protocol, device_id AS deviceId, serverTime, time AS deviceTime, time AS fixTime,
+        valid, latitude, longitude, altitude, speed, course, address, other AS attributes
         FROM positions WHERE id IN (SELECT latestPosition_id FROM devices);
     </entry>
-	
+
     <entry key='database.updateLatestPosition'>
-        UPDATE devices 
-		SET latestPosition_id = :id 
+        UPDATE devices
+		SET latestPosition_id = :id
 		WHERE id = :deviceId;
     </entry>
-	
-	
+
+
 	<entry key="database.addObd">
-		INSERT INTO obd_info(ECMErr, ABSErr, SRSErr, RemainOilL, RemainOilPercent, InstFuelConsumptionKM, InstFuelConsumptionH, OilLife, OilPressure, WaterTemperature, RelPosOfAccPedal, AccPedalPressed, AdditionalInfo) 
-		VALUES 
+		INSERT INTO obd_info(ECMErr, ABSErr, SRSErr, RemainOilL, RemainOilPercent, InstFuelConsumptionKM, InstFuelConsumptionH, OilLife, OilPressure, WaterTemperature, RelPosOfAccPedal, AccPedalPressed, AdditionalInfo)
+		VALUES
 		(:ECMErr, :ABSErr, :SRSErr, :RemainOilL, :RemainOilPercent, :InstFuelConsumptionKM, :InstFuelConsumptionH, :OilLife, :OilPressure, :WaterTemperature, :RelPosOfAccPedal, :AccPedalPressed, :attributes);
 	</entry>
-	
+
 	<entry key="database.updateBatteryLevel">
 		UPDATE devices
 		SET battery = :batteryLevel, battTime = :now
 		WHERE id = :deviceId
 	</entry>
-	
+
 	<entry key="database.updateIgnition">
 		UPDATE devices
 		SET ignition = :ignition, ignTime = :now
@@ -272,13 +280,13 @@
 		SET positionFreq = :positionFreq, lastUpdate = :now
 		WHERE id = :deviceId
 	</entry>
-	
+
 	<entry key="database.updateAutoArm">
 		UPDATE devices
 		SET autoArm = :autoArm, lastUpdate = :now
 		WHERE id = :deviceId
 	</entry>
-	
+
     <!-- PROTOCOL CONFIG -->
 
     <entry key='gps103.port'>5001</entry>

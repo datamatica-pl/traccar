@@ -50,6 +50,7 @@ public class DefaultDataHandler extends BaseDataHandler {
             } catch (Exception e) {
                 Log.warning("Not handled position could not be logge: " + e.getMessage());
             }
+            return null;
         }
 
         return position;

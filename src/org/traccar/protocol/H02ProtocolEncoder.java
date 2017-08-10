@@ -107,6 +107,9 @@ public class H02ProtocolEncoder extends StringProtocolEncoder {
                 Integer oneHourSeconds = 3600;
                 Long offsetHours = offset / oneHourSeconds;
                 return "timezone" + commandPassword + " " + offsetHours.toString();
+            case Command.TYPE_POSITION_PERIODIC_ALT:
+                final String frequencyAlt = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
+                return formatCommand(time, uniqueId, "D1", frequencyAlt, "1");
             case Command.TYPE_CUSTOM:
                 return command.toString();
             default:

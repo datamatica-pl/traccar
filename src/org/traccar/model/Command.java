@@ -49,6 +49,9 @@ public class Command extends Extensible {
     public static final String TYPE_EXIT_SLEEP_MODE = "exitSleepMode";
     public static final String TYPE_SET_AGPS_ON = "setAgpsOn";
     public static final String TYPE_SET_AGPS_OFF = "setAgpsOff";
+    
+    // Alternative command formats
+    public static final String TYPE_POSITION_PERIODIC_ALT = "positionPeriodicAlt";
 
     public static final String KEY_UNIQUE_ID = "uniqueId";
     public static final String KEY_FREQUENCY = "frequency";

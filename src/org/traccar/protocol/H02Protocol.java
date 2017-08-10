@@ -42,6 +42,7 @@ public class H02Protocol extends BaseProtocol {
                 Command.TYPE_AUTO_ALARM_DISARM,
                 Command.TYPE_AUTO_ALARM_ARM,
                 Command.TYPE_GET_STATUS,
+                Command.TYPE_POSITION_PERIODIC_ALT,
                 Command.TYPE_CUSTOM
         );
     }

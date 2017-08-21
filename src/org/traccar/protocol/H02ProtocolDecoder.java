@@ -149,7 +149,21 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
             .number("(x{8})")                    // status
             .any()
             .compile();
-
+    
+    private static final Pattern HEART_BEAT_PATTERN = new PatternBuilder()
+            .text("*")
+            .expression("..,")          // manufacturer
+            .number("(d+),")            // imei
+            .expression("....,")        // tracker upload heart beat command
+            .number("(dd)(dd)(dd),")    // time
+            .number("d+,d+,")           // GSM, GPS
+            .number("(d+),")           // battery
+            .any()
+            .number("(dd)(dd)(dd),")    // date
+            .number("(x{8})")          // status
+            .any()
+            .compile();
+    
     private Position decodeText(String sentence, Channel channel, SocketAddress remoteAddress) {
 
         Parser parser = new Parser(PATTERN, sentence);
@@ -197,6 +211,30 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
         return position;
     }
 
+    private Position decodeHeartbeat(String content, Channel channel, SocketAddress remoteAddress) {
+        Parser parser = new Parser(HEART_BEAT_PATTERN, content);
+        if(!parser.matches())
+            return null;
+        
+        Position position = new Position();
+        position.setProtocol(getProtocolName());
+
+        if (!identify(parser.next(), channel, remoteAddress)) {
+            return null;
+        }
+        
+        position.setDeviceId(getDeviceId());
+        DateBuilder dateBuilder = new DateBuilder()
+                .setTime(parser.nextInt(), parser.nextInt(), parser.nextInt());
+        position.set(Position.KEY_BATTERY, parser.nextInt());
+        dateBuilder.setDateReverse(parser.nextInt(), parser.nextInt(), parser.nextInt());
+        processStatus(position, parser.nextLong(16));
+        
+        getLastLocation(position, dateBuilder.getDate());
+
+        return position;
+    }
+    
     @Override
     protected Object decode(
             Channel channel, SocketAddress remoteAddress, Object msg) throws Exception {
@@ -216,6 +254,8 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
         // handle X mode?
         if (marker.equals("*")) {
             Position position = decodeText(content, channel, remoteAddress);
+            if(position == null)
+                position = decodeHeartbeat(content, channel, remoteAddress);
             return position;
         } else if (marker.equals("$")) {
             return decodeBinary(buf, channel, remoteAddress);

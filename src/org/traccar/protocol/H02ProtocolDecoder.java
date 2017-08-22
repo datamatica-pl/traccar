@@ -154,7 +154,7 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
             .text("*")
             .expression("..,")          // manufacturer
             .number("(d+),")            // imei
-            .expression("....,")        // tracker upload heart beat command
+            .expression("LINK,")        // tracker upload heart beat command
             .number("(dd)(dd)(dd),")    // time
             .number("d+,d+,")           // GSM, GPS
             .number("(d+),")           // battery

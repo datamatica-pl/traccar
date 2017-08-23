@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.traccar.Context;
 import org.traccar.helper.Log;
+import org.traccar.model.CommandResponse;
 import static org.traccar.model.KeyValueCommandResponse.*;
 import org.traccar.model.KeyValueCommandResponse;
 import org.traccar.model.MessageCommandResponse;
@@ -152,15 +153,42 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
     
     private static final Pattern HEART_BEAT_PATTERN = new PatternBuilder()
             .text("*")
-            .expression("..,")          // manufacturer
-            .number("(d+),")            // imei
-            .expression("LINK,")        // tracker upload heart beat command
-            .number("(dd)(dd)(dd),")    // time
-            .number("d+,d+,")           // GSM, GPS
-            .number("(d+),")           // battery
+            .expression("..,")               // manufacturer
+            .number("(d+),")                 // imei
+            .expression("LINK,")             // tracker upload heart beat command
+            .number("(dd)(dd)(dd),")         // time
+            .number("d+,d+,")                // GSM, GPS
+            .number("(d+),")                 // battery
             .any()
-            .number("(dd)(dd)(dd),")    // date
-            .number("(x{8})")          // status
+            .number("(dd)(dd)(dd),")         // date
+            .number("(x{8})")                // status
+            .any()
+            .compile();
+    
+    private static final Pattern CMD_CONFIRMATION_PATTERN = new PatternBuilder()
+            .text("*")
+            .expression("..,")                   // manufacturer
+            .number("(d+),")                     // imei
+            .text("V4,")                         // message response
+            .expression("(...),")                // CMD
+            .number("dddddd,dddddd,")            // hhmmss,hhmmss
+            .expression("([AV])?,")              // validity
+            .groupBegin()
+            .number("-(d+)-(d+.d+),")            // latitude
+            .or()
+            .number("(d+)(dd.d+),")              // latitude
+            .groupEnd()
+            .expression("([NS]),")
+            .groupBegin()
+            .number("-(d+)-(d+.d+),")            // longitude
+            .or()
+            .number("(d+)(dd.d+),")              // longitude
+            .groupEnd()
+            .expression("([EW]),")
+            .number("(d+.?d*),")                 // speed
+            .number("(d+.?d*)?,")                // course
+            .number("(dd)(dd)(dd),")             // date (ddmmyy)
+            .number("(x{8})")                    // status
             .any()
             .compile();
     
@@ -235,6 +263,18 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
         return position;
     }
     
+    private CommandResponse decodeCommandConfirmation(String content, Channel channel, SocketAddress remoteAddress) {
+        Parser parser = new Parser(CMD_CONFIRMATION_PATTERN, content);
+        if(!parser.matches())
+            return null;
+        
+        if (!identify(parser.next(), channel, remoteAddress)) {
+            return null;
+        }
+        
+        return new MessageCommandResponse(getActiveDevice(), parser.next());
+    }
+    
     @Override
     protected Object decode(
             Channel channel, SocketAddress remoteAddress, Object msg) throws Exception {
@@ -256,6 +296,8 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
             Position position = decodeText(content, channel, remoteAddress);
             if(position == null)
                 position = decodeHeartbeat(content, channel, remoteAddress);
+            if(position == null)
+                return decodeCommandConfirmation(content, channel, remoteAddress);
             return position;
         } else if (marker.equals("$")) {
             return decodeBinary(buf, channel, remoteAddress);

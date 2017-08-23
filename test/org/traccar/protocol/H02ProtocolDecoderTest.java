@@ -62,28 +62,28 @@ public class H02ProtocolDecoderTest extends ProtocolTest {
         verifyPosition(decoder, buffer(
                 "*TH,2020916012,V1,050316,A,2212.8745,N,11346.6574,E,14.28,028,220902,FFFFFBFF#"));
         
-        verifyPosition(decoder, buffer(
+        verifyCommandResponseAndPosition(decoder, buffer(
                 "*TH,2020916012,V4,S17,130305,050316,A,2212.8745,N,11346.6574,E,14.28,028,220902,FFFFFBFF#"));
         
-        verifyPosition(decoder, buffer(
+        verifyCommandResponseAndPosition(decoder, buffer(
                 "*TH,2020916012,V4,S14,100,10,1,3,130305,050316,A,2212.8745,N,11346.6574,E,14.28,028,220902,FFFFFBFF#"));
         
-        verifyPosition(decoder, buffer(
+        verifyCommandResponseAndPosition(decoder, buffer(
                 "*TH,2020916012,V4,S20,ERROR,130305,050316,A,2212.8745,N,11346.6574,E,14.28,028,220902,FFFFFBFF#"));
         
-        verifyPosition(decoder, buffer(
+        verifyCommandResponseAndPosition(decoder, buffer(
                 "*TH,2020916012,V4,S20,DONE,130305,050316,A,2212.8745,N,11346.6574,E,14.28,028,220902,F7FFFBFF#"));
         
-        verifyPosition(decoder, buffer(
+        verifyCommandResponseAndPosition(decoder, buffer(
                 "*TH,2020916012,V4,R8,ERROR,130305,050316,A,2212.8745,N,11346.6574,E,14.28,028,220902,FFFFFBFF#"));
         
-        verifyPosition(decoder, buffer(
+        verifyCommandResponseAndPosition(decoder, buffer(
                 "*TH,2020916012,V4,S23,165.165.33.250:8800,130305,050316,A,2212.8745,N,11346.6574,E,14.28,028,220902,FFFFFBFF#"));
         
-        verifyPosition(decoder, buffer(
+        verifyCommandResponseAndPosition(decoder, buffer(
                 "*TH,2020916012,V4,S24,thit.gd,130305,050316,A,2212.8745,N,11346.6574,E,14.28,028,220902,FFFFFBFF#"));
         
-        verifyPosition(decoder, buffer(
+        verifyCommandResponseAndPosition(decoder, buffer(
                 "*TH,2020916012,V4,S1,OK,pass_word,130305,050316,A,2212.8745,N,11346.6574,E,14.28,028,220902,FFFFFBFD#"));
         
         verifyPosition(decoder, buffer(

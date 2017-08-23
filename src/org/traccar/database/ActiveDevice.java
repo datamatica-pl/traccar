@@ -103,7 +103,8 @@ public class ActiveDevice {
     public void onCommandResponse(String message) throws SQLException {
         if(!isWaitingForResponse())
             return;
-        Context.getDataManager().updateCmdStatus(processedCommand);
+        if(processedCommand != null)
+            Context.getDataManager().updateCmdStatus(processedCommand);
         processedCommand = null;
         timer.cancel();
         if(handler != null){

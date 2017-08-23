@@ -29,6 +29,7 @@ import org.traccar.model.Position;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.traccar.Context;
@@ -170,8 +171,8 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
             .expression("..,")                   // manufacturer
             .number("(d+),")                     // imei
             .text("V4,")                         // message response
-            .expression("(...),")                // CMD
-            .number("dddddd,dddddd,")            // hhmmss,hhmmss
+            .expression("(.*),")                 // CMD
+            .number("dddddd,")                   // time
             .expression("([AV])?,")              // validity
             .groupBegin()
             .number("-(d+)-(d+.d+),")            // latitude
@@ -296,8 +297,11 @@ public class H02ProtocolDecoder extends BaseProtocolDecoder {
             Position position = decodeText(content, channel, remoteAddress);
             if(position == null)
                 position = decodeHeartbeat(content, channel, remoteAddress);
-            if(position == null)
-                return decodeCommandConfirmation(content, channel, remoteAddress);
+            CommandResponse r = decodeCommandConfirmation(content, channel, remoteAddress);
+            if(r != null && position != null)
+                return Arrays.asList(position, r);
+            else if(r != null)
+                return r;
             return position;
         } else if (marker.equals("$")) {
             return decodeBinary(buf, channel, remoteAddress);

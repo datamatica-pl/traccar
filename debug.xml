@@ -17,6 +17,7 @@
     <entry key='web.debug'>true</entry>
     <entry key='web.console'>true</entry>
     <entry key='web.timeout'>30000</entry>
+	<entry key='web.reports.password'>inne_haslo</entry>
 
 	<entry key='api.enable'>true</entry>
 	<entry key='api.path'>../traccar-api/target/traccar-api-1.0-SNAPSHOT.war</entry>

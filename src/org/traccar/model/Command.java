@@ -34,6 +34,7 @@ public class Command extends Extensible {
     public static final String TYPE_REQUEST_PHOTO = "requestPhoto";
     public static final String TYPE_REBOOT_DEVICE = "rebootDevice";
     public static final String TYPE_MOVEMENT_ALARM = "movementAlarm";
+    public static final String TYPE_MOVEMENT_ALARM_OFF = "movementAlarmOff";
     public static final String TYPE_SEND_SMS = "sendSms";
     public static final String TYPE_SET_DEFENSE_TIME = "setDefenseTime";
     public static final String TYPE_GET_PARAMS = "getParams";

@@ -123,6 +123,8 @@ public class Gt06ProtocolEncoder extends BaseProtocolEncoder {
                 } else {
                     return encodeContent("MOVING,ON," + radius + "#");
                 }
+            case Command.TYPE_MOVEMENT_ALARM_OFF:
+                return encodeContent("MOVING,OFF#");
             case Command.TYPE_EXTENDED_CUSTOM:
                 String customCommand = command.getAttributes().get(Command.KEY_MESSAGE).toString();
                 if (!customCommand.endsWith("#")) {

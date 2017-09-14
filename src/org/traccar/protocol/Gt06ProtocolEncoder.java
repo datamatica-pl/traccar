@@ -110,6 +110,19 @@ public class Gt06ProtocolEncoder extends BaseProtocolEncoder {
                 return encodeContent("SENALM,OFF#");
             case Command.TYPE_GET_STATUS:
                 return encodeContent("STATUS#");
+            case Command.TYPE_MOVEMENT_ALARM:
+                String radius = "";
+                if (command.getAttributes().get(Command.KEY_RADIUS) != null) {
+                    // It's better to keep radius as string, GT devices provides error if parameter is incorrect
+                    radius = command.getAttributes().get(Command.KEY_RADIUS).toString();
+                }
+                
+                // Traccar Web form returns "-1" if no radius value is provided
+                if (radius.equals("") || radius.equals("-1")) {
+                    return encodeContent("MOVING,ON#"); // Run moving alert with default or last used value
+                } else {
+                    return encodeContent("MOVING,ON," + radius + "#");
+                }
             case Command.TYPE_EXTENDED_CUSTOM:
                 String customCommand = command.getAttributes().get(Command.KEY_MESSAGE).toString();
                 if (!customCommand.endsWith("#")) {

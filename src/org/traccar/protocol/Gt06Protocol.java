@@ -41,6 +41,7 @@ public class Gt06Protocol extends BaseProtocol {
                 Command.TYPE_ALARM_ARM,
                 Command.TYPE_ALARM_DISARM,
                 Command.TYPE_GET_STATUS,
+                Command.TYPE_MOVEMENT_ALARM,
                 Command.TYPE_EXTENDED_CUSTOM);
     }
 

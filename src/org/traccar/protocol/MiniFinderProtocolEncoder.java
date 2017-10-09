@@ -56,19 +56,12 @@ public class MiniFinderProtocolEncoder extends StringProtocolEncoder {
                 return commandPassword + "G";
             case Command.TYPE_REBOOT_DEVICE:
                 return commandPassword + "T";
-            case Command.TYPE_SET_CENTER_NUMBER:
-                if (command.getAttributes().get(Command.KEY_CENTER_NUMBER) != null) {
-                    String centerNumber = command.getAttributes().get(Command.KEY_CENTER_NUMBER).toString();
-                    return String.format("%sA1,%s", commandPassword, centerNumber);
+            case Command.TYPE_SET_SOS_NUMBER:
+                if (command.getAttributes().get(Command.KEY_SOS_NUMBER_1) != null) {
+                    String SOSNumber = command.getAttributes().get(Command.KEY_SOS_NUMBER_1).toString();
+                    return String.format("%sA1,%s", commandPassword, SOSNumber);
                 } else {
                     return String.format("%sA0", commandPassword);
-                }
-            case Command.TYPE_SET_SOS_NUMBERS:
-                if (command.getAttributes().get(Command.KEY_SOS_NUMBER_1) != null) {
-                    String SOSNumber1 = command.getAttributes().get(Command.KEY_SOS_NUMBER_1).toString();
-                    return String.format("%sB1,%s", commandPassword, SOSNumber1);
-                } else {
-                    return String.format("%sB0", commandPassword);
                 }
             case Command.TYPE_LISTEN_MODE:
                 return String.format("%sP1", commandPassword);

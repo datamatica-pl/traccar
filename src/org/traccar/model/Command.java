@@ -39,6 +39,7 @@ public class Command extends Extensible {
     public static final String TYPE_SET_DEFENSE_TIME = "setDefenseTime";
     public static final String TYPE_GET_PARAMS = "getParams";
     public static final String TYPE_GET_STATUS = "getStatus";
+    public static final String TYPE_SET_SOS_NUMBER = "setSOSNumber";
     public static final String TYPE_SET_SOS_NUMBERS = "setSOSNumbers";
     public static final String TYPE_DELETE_SOS_NUMBER = "deleteSOSNumber";
     public static final String TYPE_SET_CENTER_NUMBER = "setCenterNumber";

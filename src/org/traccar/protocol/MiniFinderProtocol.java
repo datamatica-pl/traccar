@@ -38,6 +38,7 @@ public class MiniFinderProtocol extends BaseProtocol {
             Command.TYPE_REBOOT_DEVICE,
             Command.TYPE_SET_SOS_NUMBER,
             Command.TYPE_DELETE_SOS_NUMBER,
+            Command.TYPE_SET_SECOND_NUMBER,
             Command.TYPE_LISTEN_MODE,
             Command.TYPE_VOICE_CALL_MODE,
             Command.TYPE_SLEEP_MODE,

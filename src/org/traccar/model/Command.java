@@ -44,6 +44,7 @@ public class Command extends Extensible {
     public static final String TYPE_DELETE_SOS_NUMBER = "deleteSOSNumber";
     public static final String TYPE_SET_CENTER_NUMBER = "setCenterNumber";
     public static final String TYPE_SET_SECOND_NUMBER = "setSecondNumber";
+    public static final String TYPE_DELETE_SECOND_NUMBER = "deleteSecondNumber";
     public static final String TYPE_FACTORY_SETTINGS = "factorySettings";
     public static final String TYPE_LISTEN_MODE = "listenMode";
     public static final String TYPE_VOICE_CALL_MODE = "voiceCallMode";

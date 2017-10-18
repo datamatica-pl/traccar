@@ -63,6 +63,8 @@ public class MiniFinderProtocolEncoder extends StringProtocolEncoder {
                 } else {
                     return String.format("%sA0", commandPassword);
                 }
+            case Command.TYPE_DELETE_SOS_NUMBER:
+                return String.format("%sA0", commandPassword);
             case Command.TYPE_SET_SECOND_NUMBER:
                 if (command.getAttributes().get(Command.KEY_SOS_NUMBER_2) != null) {
                     String SOSNumber = command.getAttributes().get(Command.KEY_SOS_NUMBER_2).toString();
@@ -70,8 +72,8 @@ public class MiniFinderProtocolEncoder extends StringProtocolEncoder {
                 } else {
                     return String.format("%sB0", commandPassword);
                 }
-            case Command.TYPE_DELETE_SOS_NUMBER:
-                return String.format("%sA0", commandPassword);
+            case Command.TYPE_DELETE_SECOND_NUMBER:
+                return String.format("%sB0", commandPassword);
             case Command.TYPE_LISTEN_MODE:
                 return String.format("%sP1", commandPassword);
             case Command.TYPE_VOICE_CALL_MODE:

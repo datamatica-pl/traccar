@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.traccar.ProtocolTest;
 import org.traccar.model.Command;
+import static org.junit.Assert.assertEquals;
 
 public class MiniFinderProtocolEncoderTest extends ProtocolTest {
 
@@ -208,6 +209,63 @@ public class MiniFinderProtocolEncoderTest extends ProtocolTest {
         command.set(Command.KEY_TIMEZONE, -39600L);
         Object encoded = encoder.encodeCommand(command);
         assert expected.equals(encoded);
+    }
+    
+    @Test
+    public void testSetFirstSosNumber() throws Exception {
+        String expected = String.format("%sA1,499001001", prefix);
+        Command command = new Command();
+        command.setType(Command.TYPE_SET_SOS_NUMBER);
+        command.set(Command.KEY_SOS_NUMBER_1, "499001001");
+        Object encoded = encoder.encodeCommand(command);
+        assertEquals(expected, encoded.toString());
+    }
+    
+    @Test
+    public void testDeleteFirstSosNumber() throws Exception {
+        String expected = String.format("%sA0", prefix);
+        Command command = new Command();
+        command.setType(Command.TYPE_DELETE_SOS_NUMBER);
+        Object encoded = encoder.encodeCommand(command);
+        assertEquals(expected, encoded.toString());
+    }
+    
+    @Test
+    public void testSetSecondSosNumber() throws Exception {
+        String expected = String.format("%sB1,499001001", prefix);
+        Command command = new Command();
+        command.setType(Command.TYPE_SET_SECOND_NUMBER);
+        command.set(Command.KEY_SOS_NUMBER_2, "499001001");
+        Object encoded = encoder.encodeCommand(command);
+        assertEquals(expected, encoded.toString());
+    }
+    
+    @Test
+    public void testDeleteSecondSosNumber() throws Exception {
+        String expected = String.format("%sB0", prefix);
+        Command command = new Command();
+        command.setType(Command.TYPE_DELETE_SECOND_NUMBER);
+        Object encoded = encoder.encodeCommand(command);
+        assertEquals(expected, encoded.toString());
+    }
+    
+    @Test
+    public void testSetThirdSosNumber() throws Exception {
+        String expected = String.format("%sC1,499001001", prefix);
+        Command command = new Command();
+        command.setType(Command.TYPE_SET_THIRD_NUMBER);
+        command.set(Command.KEY_SOS_NUMBER_3, "499001001");
+        Object encoded = encoder.encodeCommand(command);
+        assertEquals(expected, encoded.toString());
+    }
+    
+    @Test
+    public void testDeleteThirdSosNumber() throws Exception {
+        String expected = String.format("%sC0", prefix);
+        Command command = new Command();
+        command.setType(Command.TYPE_DELETE_THIRD_NUMBER);
+        Object encoded = encoder.encodeCommand(command);
+        assertEquals(expected, encoded.toString());
     }
 
     @Test

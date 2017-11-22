@@ -112,6 +112,9 @@ public class H02ProtocolEncoder extends StringProtocolEncoder {
                 return formatCommand(time, uniqueId, "D1", frequencyAlt, "1");
             case Command.TYPE_CUSTOM:
                 return command.toString();
+            case Command.TYPE_EXTENDED_CUSTOM:
+                final String customMsg = command.getAttributes().get(Command.KEY_MESSAGE).toString();
+                return customMsg;
             default:
                 Log.warning(new UnsupportedOperationException(command.getType()));
                 break;

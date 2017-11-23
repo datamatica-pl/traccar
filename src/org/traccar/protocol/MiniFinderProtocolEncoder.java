@@ -97,6 +97,8 @@ public class MiniFinderProtocolEncoder extends StringProtocolEncoder {
                 return String.format("%sAGPS0", commandPassword);
             case Command.TYPE_CUSTOM:
                 return command.getAttributes().get("raw");
+            case Command.TYPE_EXTENDED_CUSTOM:
+                return command.getAttributes().get("message");
             default:
                 Log.warning(new UnsupportedOperationException(command.getType()));
                 break;

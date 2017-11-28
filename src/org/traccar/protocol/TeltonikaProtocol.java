@@ -39,6 +39,8 @@ public class TeltonikaProtocol extends BaseProtocol {
                 Command.TYPE_FACTORY_SETTINGS,
                 Command.TYPE_GET_PARAMS,
                 Command.TYPE_GET_STATUS,
+                Command.TYPE_DEL_AUTHORIZED_NUMS_FIRST_100_FMB,
+                Command.TYPE_DEL_AUTHORIZED_NUMS_SECOND_100_FMB,
                 Command.TYPE_EXTENDED_CUSTOM);
     }
 

@@ -23,6 +23,8 @@ import org.traccar.helper.Log;
 import org.traccar.model.Command;
 
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
 
@@ -48,6 +50,8 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
         public static final String PARAM_DISABLE = "0";
         public static final String PARAM_ENABLE = "1";
         public static final String SET_AUTHORIZED_NUMBER_1 = "1260"; // FM1000: 9.4.14
+        public static final int FMB_AUTHORIZED_NUMS_BEGIN_INDEX = 4000;
+        public static final int FMB_AUTHORIZED_NUMS_END_INDEX = 4199;
     }
 
     private ChannelBuffer encodeContent(String content) {
@@ -67,6 +71,15 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
         buf.writeInt(Checksum.crc16(Checksum.CRC16_IBM, buf.toByteBuffer(8, buf.writerIndex() - 8)));
 
         return buf;
+    }
+    
+    private String getClearIdsRangeCommand(int begin, int end) {
+        final String cmdIdsAndVals = IntStream
+                .rangeClosed(begin, end)
+                .mapToObj(Integer::toString)
+                .collect(Collectors.joining(":;"));
+
+        return "setparam " + cmdIdsAndVals + ":";
     }
 
     @Override
@@ -114,6 +127,14 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
             case Command.TYPE_EXTENDED_CUSTOM:
                 String customCommand = command.getAttributes().get(Command.KEY_MESSAGE).toString();
                 return encodeContent(customCommand);
+            case Command.TYPE_DEL_AUTHORIZED_NUMS_FIRST_100_FMB:
+                return encodeContent(
+                        getClearIdsRangeCommand(TeltonikaCommand.FMB_AUTHORIZED_NUMS_BEGIN_INDEX, 4099)
+                );
+            case Command.TYPE_DEL_AUTHORIZED_NUMS_SECOND_100_FMB:
+                return encodeContent(
+                        getClearIdsRangeCommand(4100, TeltonikaCommand.FMB_AUTHORIZED_NUMS_END_INDEX)
+                );
             default:
                 Log.warning(new UnsupportedOperationException(command.getType()));
                 break;

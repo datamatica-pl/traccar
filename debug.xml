@@ -31,6 +31,8 @@
     <entry key='api.versions.messagekey'>message</entry>
     <entry key='api.versions.messagelocalized'>lalal</entry>
     <entry key='api.versions.messageurl'>google.com</entry>
+    
+    <entry key='fcm_secret'>SECRET</entry>
 
     <entry key='geocoder.enable'>true</entry>
     <entry key='geocoder.type'>nominatim</entry>

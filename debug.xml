@@ -88,6 +88,15 @@
     <!-- Imei manager user and password, used in API calls -->
     <entry key='api.imei_manager.imei_manager_user'>imei_manager</entry>
     <entry key='api.imei_manager.imei_manager_password'>123456</entry>
+    
+    <!--
+        Configuration values used for emails for registration, password recovery etc. Variables responsible for different
+        behaviour of application depending on which application is it (Petio, DM Trackman) should be placed here.
+    -->
+    <entry key='dm_app.app_name'>DM Trackman</entry>
+    <entry key='dm_app.email.after_register_link'>http://trackman.pl/rejestracja</entry>
+    
+    <entry key='fcm_secret'>ABC123</entry>
 
     <entry key='database.xml'>false</entry>
     <entry key='database.saveOriginal'>false</entry>

@@ -16,6 +16,7 @@ import org.jboss.netty.channel.Channel;
 import org.joda.time.DateTime;
 import org.traccar.BaseProtocolDecoder;
 import org.traccar.helper.Log;
+import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.Position;
 
 /**
@@ -41,6 +42,12 @@ public class GrooProtocolDecoder extends BaseProtocolDecoder {
         
         // contentParts[0] == "@G#@" - constatnt start of message
         // contentParts[1] == "V01" - protocol name
+        
+        String imei = contentParts[3];
+        Log.debug("IMEI: " + imei);        
+        if (!identify(imei, channel, remoteAddress)) {
+            return null;
+        }
         
         int messageType = Integer.parseInt(contentParts[2]);
         switch (messageType) {
@@ -69,6 +76,13 @@ public class GrooProtocolDecoder extends BaseProtocolDecoder {
                 handleHeartRateUpdateMessage(contentParts, channel);
                 break;
             }
+            case 19:
+            case 25: {
+                // NOT DOCUMENTED - it looks like it's response for command
+                // Device sends it when receives command with cmd = 25
+                // Let's try to read this in this way
+                return new MessageCommandResponse(getActiveDevice(), Arrays.toString(contentParts));
+            }
             case 44: {
                 // heartbeat message
                 // device require response or it will disconnect from server (after 3 tries)
@@ -76,7 +90,6 @@ public class GrooProtocolDecoder extends BaseProtocolDecoder {
                 break;
             }
         }
-        
         
         return null;
     }
@@ -102,13 +115,6 @@ public class GrooProtocolDecoder extends BaseProtocolDecoder {
         
         Log.debug("TIME: " + time.toString());
         
-        String imei = contentParts[3];
-        
-        Log.debug("IMEI: " + imei);
-        
-        if (!identify(imei, channel, remoteAddress)) {
-            return null;
-        }
         Log.debug("DeviceID: " + getDeviceId());
         position.setDeviceId(getDeviceId());
         

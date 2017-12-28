@@ -20,6 +20,7 @@ import java.util.List;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.handler.codec.string.StringDecoder;
+import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.traccar.BaseProtocol;
 import org.traccar.CharacterDelimiterFrameDecoder;
 import org.traccar.TrackerServer;
@@ -34,10 +35,11 @@ public class GrooProtocol extends BaseProtocol {
     
     public GrooProtocol() {
         super("groo");
-//        setSupportedCommands(
+        setSupportedCommands(
+                Command.TYPE_POSITION_PERIODIC,
+                Command.TYPE_ACTIVE_POSITIONING
 //                Command.TYPE_ALARM_ARM,
 //                Command.TYPE_ALARM_DISARM,
-//                Command.TYPE_POSITION_PERIODIC,
 //                Command.TYPE_POSITION_STOP,
 //                Command.TYPE_SET_CENTER_NUMBER,
 //                Command.TYPE_REBOOT_DEVICE,
@@ -50,7 +52,7 @@ public class GrooProtocol extends BaseProtocol {
 //                Command.TYPE_GET_STATUS,
 //                Command.TYPE_POSITION_PERIODIC_ALT,
 //                Command.TYPE_CUSTOM
-//        );
+        );
     }
     
     @Override
@@ -59,6 +61,8 @@ public class GrooProtocol extends BaseProtocol {
             @Override
             protected void addSpecificHandlers(ChannelPipeline pipeline) {
                 pipeline.addLast("objectDecoder", new GrooProtocolDecoder(GrooProtocol.this));
+                pipeline.addLast("stringEncoder", new StringEncoder());
+                pipeline.addLast("objectEncoder", new GrooProtocolEncoder());
             }
         });
     }

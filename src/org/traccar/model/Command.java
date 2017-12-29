@@ -58,6 +58,8 @@ public class Command extends Extensible {
     public static final String TYPE_DEL_AUTHORIZED_NUMS_FIRST_100_FMB = "delAuthorizedNumsFirst100FMB";
     public static final String TYPE_DEL_AUTHORIZED_NUMS_SECOND_100_FMB = "delAuthorizedNumsSecond100FMB";
     public static final String TYPE_ACTIVE_POSITIONING = "activePositioning";
+    public static final String TYPE_ACTIVE_HEART_RATE = "activeHeartRate";
+    public static final String TYPE_ACTIVE_BLOOD_PRESSURE = "activeBloodPressure";
     
     // Alternative command formats
     public static final String TYPE_POSITION_PERIODIC_ALT = "positionPeriodicAlt";

@@ -27,6 +27,13 @@ public class GrooProtocolEncoder extends StringProtocolEncoder {
             case Command.TYPE_ACTIVE_POSITIONING: {
                 return "@G#@,V01,25,@R#@";
             }
+            case Command.TYPE_ACTIVE_HEART_RATE: {
+                return "@G#@,V01,114,@R#@";
+            }
+            case Command.TYPE_ACTIVE_BLOOD_PRESSURE: {
+                return "@G#@,V01,115,@R#@";
+            }
+            
         }
         return null;
     }

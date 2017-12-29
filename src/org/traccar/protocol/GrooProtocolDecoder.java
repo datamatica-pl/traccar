@@ -62,22 +62,24 @@ public class GrooProtocolDecoder extends BaseProtocolDecoder {
                 return handleLocationUpdateMessage(contentParts, channel, remoteAddress);
             }
             case 9: {
-                // gps location update message
+                // is on hand update message
                 handleIsOnHandMessage(contentParts, channel);
                 break;
             }
             case 13: {
-                // gps location update message
+                // pedometer update message
                 handlePedometerUpdateMessage(contentParts, channel);
                 break;
             }
             case 14: {
-                // gps location update message
-                handleHeartRateUpdateMessage(contentParts, channel);
+                // heart rate update message
+                handleHeartRateUpdateMessage(contentParts, channel, false);
                 break;
             }
             case 19:
-            case 25: {
+            case 25:
+            case 114:
+            case 115: {
                 // NOT DOCUMENTED - it looks like it's response for command
                 // Device sends it when receives command with cmd = 25
                 // Let's try to read this in this way
@@ -87,6 +89,31 @@ public class GrooProtocolDecoder extends BaseProtocolDecoder {
                 // heartbeat message
                 // device require response or it will disconnect from server (after 3 tries)
                 handleHeartbeatMessage(contentParts, channel);
+                break;
+            }
+            case 99: {
+                // abnormal heart rate update message
+                handleHeartRateUpdateMessage(contentParts, channel, true);
+                break;
+            }
+            case 104: {
+                // fall detection message
+                handleFallAlarmMessage(contentParts, channel);
+                break;
+            }
+            case 105: {
+                // sleep quality
+                handleSleepQualityMessage(contentParts, channel);
+                break;
+            }
+            case 110: {
+                // blood pressure message
+                handleBloodPressureMessage(contentParts, channel, false);
+                break;
+            }
+            case 113: {
+                // abnormal blood pressure message
+                handleBloodPressureMessage(contentParts, channel, true);
                 break;
             }
         }
@@ -130,7 +157,7 @@ public class GrooProtocolDecoder extends BaseProtocolDecoder {
     private void handleIsOnHandMessage(String[] contentParts, Channel channel) {
         DateTime time = parseGrooTimestamp(contentParts[5]);
         
-        Log.debug("IS ON HAND: " + ("1".equals(contentParts[6]) ? "FALSE" : "TRUE"));
+        Log.debug("IS ON HAND: " + ("1".equals(contentParts[6]) ? "FALSE" : "TRUE") + " at " + time);
     }
     
     private void handlePedometerUpdateMessage(String[] contentParts, Channel channel) {
@@ -139,16 +166,40 @@ public class GrooProtocolDecoder extends BaseProtocolDecoder {
         Log.debug("PEDOMETER: " + contentParts[6] + " steps today at " + time.toString());
     }
     
-    private void handleHeartRateUpdateMessage(String[] contentParts, Channel channel) {
+    private void handleHeartRateUpdateMessage(String[] contentParts, Channel channel, Boolean isAbnormal) {
         DateTime time = parseGrooTimestamp(contentParts[5]);
         
-        Log.debug("HEART RATE: " + contentParts[6] + " at " + time.toString() + ". Battery: " + contentParts[7]);
+        Log.debug((isAbnormal ? "ABNORMAL " : "") + "HEART RATE: " + contentParts[6] + " at " + time.toString() + ". Battery: " + contentParts[7]);
     }
-    
     
     private void handleHeartbeatMessage(String[] contentParts, Channel channel) {
         String response = "@G#@,V01,21,@R#@"; //const response
         sendResponseToDevice(response, channel);
+    }
+    
+    private void handleFallAlarmMessage(String[] contentParts, Channel channel) {
+        DateTime time = parseGrooTimestamp(contentParts[5]);
+        
+        Log.debug("FALL DETECTED at " + time.toString());
+    }
+        
+    private void handleSleepQualityMessage(String[] contentParts, Channel channel) {
+        Integer qt = Integer.parseInt(contentParts[5]);
+        String qualityString = "??";
+        switch (qt) {
+            case 1: qualityString = "EXCELLENT"; break;
+            case 2: qualityString = "GOOD"; break;
+            case 3: qualityString = "NORMAL"; break;
+            case 4: qualityString = "POOR"; break;
+        }
+        
+        Log.debug("SLEEP QUALITY: " + contentParts[5] + "-" + qualityString);
+    }
+    
+    private void handleBloodPressureMessage(String[] contentParts, Channel channel, Boolean isAbnormal) {
+        DateTime time = parseGrooTimestamp(contentParts[5]);
+        
+        Log.debug((isAbnormal ? "ABNORMAL " : "") + "BLOOD PRESSURE: " + contentParts[6] + "-" + contentParts[7] + " at " + time.toString());
     }
     
     private String buildGrooTimestamp() {

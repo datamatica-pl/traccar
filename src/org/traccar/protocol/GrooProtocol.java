@@ -37,7 +37,9 @@ public class GrooProtocol extends BaseProtocol {
         super("groo");
         setSupportedCommands(
                 Command.TYPE_POSITION_PERIODIC,
-                Command.TYPE_ACTIVE_POSITIONING
+                Command.TYPE_ACTIVE_POSITIONING,
+                Command.TYPE_ACTIVE_HEART_RATE,
+                Command.TYPE_ACTIVE_BLOOD_PRESSURE
 //                Command.TYPE_ALARM_ARM,
 //                Command.TYPE_ALARM_DISARM,
 //                Command.TYPE_POSITION_STOP,

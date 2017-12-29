@@ -31,8 +31,6 @@
     <entry key='api.versions.messagekey'>message</entry>
     <entry key='api.versions.messagelocalized'>lalal</entry>
     <entry key='api.versions.messageurl'>google.com</entry>
-    
-    <entry key='fcm_secret'>SECRET</entry>
 
     <entry key='geocoder.enable'>true</entry>
     <entry key='geocoder.type'>nominatim</entry>
@@ -81,15 +79,15 @@
     <entry key='api.database.user'>traccar</entry>
     <entry key='api.database.password'>123</entry>
 
-    <entry key='api.imei_manager.enabled'>true</entry>
+    <entry key='api.imei_manager.enabled'>false</entry>
     <!-- Comma separated list of IP's allowed to add IMEI's to database via IMEI manager -->
     <entry key='api.imei_manager.allowed_ips'>127.0.0.1,0:0:0:0:0:0:0:1</entry>
-    <entry key='api.imei_manager.check_imei_url'>https://test39.petio.eu/api/imei_manager/imei/</entry>
+    <entry key='api.imei_manager.check_imei_url'>https://localhost/api/imei_manager/imei/</entry>
     <entry key='api.imei_manager.check_imei_existence_url'></entry>  <!-- TODO: Remove if AUTO-1358 is on production on all servers -->
     
     <!-- Imei manager user and password, used in API calls -->
-    <entry key='api.imei_manager.imei_manager_user'>imei_manager</entry>
-    <entry key='api.imei_manager.imei_manager_password'>123456</entry>
+    <entry key='api.imei_manager.imei_manager_user'></entry>
+    <entry key='api.imei_manager.imei_manager_password'></entry>
     
     <!--
         Configuration values used for emails for registration, password recovery etc. Variables responsible for different
@@ -98,7 +96,7 @@
     <entry key='dm_app.app_name'>DM Trackman</entry>
     <entry key='dm_app.email.after_register_link'>http://trackman.pl/rejestracja</entry>
     
-    <entry key='fcm_secret'>ABC123</entry>
+    <entry key='fcm_secret'>SECRET</entry>
 
     <entry key='database.xml'>false</entry>
     <entry key='database.saveOriginal'>false</entry>

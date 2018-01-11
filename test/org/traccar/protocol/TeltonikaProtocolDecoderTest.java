@@ -1,15 +1,18 @@
 package org.traccar.protocol;
 
+import java.util.List;
+import org.junit.Assert;
 import org.junit.Test;
 import org.traccar.ProtocolTest;
 import org.traccar.model.MessageCommandResponse;
+import org.traccar.model.Position;
 
 public class TeltonikaProtocolDecoderTest extends ProtocolTest {
+    
+    private final TeltonikaProtocolDecoder decoder = new TeltonikaProtocolDecoder(new TeltonikaProtocol());
 
     @Test
     public void testDecode() throws Exception {
-
-        TeltonikaProtocolDecoder decoder = new TeltonikaProtocolDecoder(new TeltonikaProtocol());
 
         verifyNothing(decoder, binary(
                 "000F313233343536373839303132333435"));
@@ -45,6 +48,32 @@ public class TeltonikaProtocolDecoderTest extends ProtocolTest {
         verifyPositions(decoder, binary(
                 "00000000000000a608010000013f14a1d1ce000f0eb790209a778000ab010c0500000000000000000100003390"));
         
+    }
+    
+    @Test
+    public void testPostionWithIgnition() throws Exception {
+        final String posHeaderAndLenght = "000000000000003f";
+        final String posData = "080100000160e52f0098000c90bbfc1f17c25f00000000000000f00c06"
+                + "ef01" // Ignition ON
+                + "f00050011504c800450106b50013b6001142317a180000430ee94400d9000001";
+        final String posCRC16 = "00006ef1";
+        
+        List<Position> list = (List)decoder.decode(null, null, binary(posHeaderAndLenght + posData + posCRC16));
+        
+        Assert.assertTrue( list.get(0).getIgnition() );
+    }
+    
+    @Test
+    public void testPostionWithoutIgnition() throws Exception {
+        final String posHeaderAndLenght = "000000000000003f";
+        final String posData = "080100000160e52f0098000c90bbfc1f17c25f00000000000000f00c06"
+                + "ef00" // Ignition OFF
+                + "f00050011504c800450106b50013b6001142317a180000430ee94400d9000001";
+        final String posCRC16 = "0000ae9c";
+        
+        List<Position> list = (List)decoder.decode(null, null, binary(posHeaderAndLenght + posData + posCRC16));
+        
+        Assert.assertFalse( list.get(0).getIgnition() );
     }
     
 }

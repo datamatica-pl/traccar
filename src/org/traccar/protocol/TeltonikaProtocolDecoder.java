@@ -39,6 +39,7 @@ import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.Position;
 
 public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
+    private final int IGNITION_IO_KEY = 239;
 
     public TeltonikaProtocolDecoder(TeltonikaProtocol protocol) {
         super(protocol);
@@ -160,32 +161,38 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
 
             }
 
-            // Read 1 byte data
+            // Read all 1 byte IO elements
             if (BitUtil.check(globalMask, 1)) {
                 int cnt = buf.readUnsignedByte();
                 for (int j = 0; j < cnt; j++) {
                     int id = buf.readUnsignedByte();
+                    int oneByteValue = buf.readUnsignedByte();
                     if (id == 1) {
-                        position.set(Event.KEY_POWER, buf.readUnsignedByte());
+                        position.set(Event.KEY_POWER, oneByteValue);
                     } else {
-                        position.set(Event.PREFIX_IO + id, buf.readUnsignedByte());
+                        if (id == IGNITION_IO_KEY) {
+                            if (oneByteValue == 0) {
+                                position.set(Event.KEY_IGNITION, false);
+                            } else if (oneByteValue == 1) {
+                                position.set(Event.KEY_IGNITION, true);
+                            }
+                        }
+                        position.set(Event.PREFIX_IO + id, oneByteValue);
                     }
                 }
             }
-
-            // Read 2 byte data
+            
+            // Read all 2 byte IO elements
             if (BitUtil.check(globalMask, 2)) {
                 int cnt = buf.readUnsignedByte();
                 for (int j = 0; j < cnt; j++) {
                     int id = buf.readUnsignedByte();
                     int val = buf.readUnsignedShort();
                     position.set(Event.PREFIX_IO + id, val);
-                    if(id == 85)
-                        position.set(Event.KEY_IGNITION, val > 0);
                 }
             }
 
-            // Read 4 byte data
+            // Read all 4 byte IO elements
             if (BitUtil.check(globalMask, 3)) {
                 int cnt = buf.readUnsignedByte();
                 for (int j = 0; j < cnt; j++) {
@@ -193,13 +200,14 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                 }
             }
 
-            // Read 8 byte data
+            // Read all 8 byte IO elements
             if (codec == CODEC_FM4X00) {
                 int cnt = buf.readUnsignedByte();
                 for (int j = 0; j < cnt; j++) {
                     position.set(Event.PREFIX_IO + buf.readUnsignedByte(), buf.readLong());
                 }
             }
+            
             positions.add(position);
         }
 

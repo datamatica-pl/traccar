@@ -82,6 +82,7 @@ public class WebServer {
         }
 
         initServer();
+        initStaticHandler();
         initApi();
         if (config.getBoolean("web.console")) {
             initConsole();
@@ -138,6 +139,14 @@ public class WebServer {
         app.setWar(config.getString("web.application"));
         app.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
         handlers.addHandler(app);
+    }
+    
+    private void initStaticHandler() {
+        if(config.hasKey("web.static")) {
+            ResourceHandler rh = new ResourceHandler();
+            rh.setResourceBase(config.getString("web.static"));
+            handlers.addHandler(rh);
+        }
     }
 
     private void initApi() {

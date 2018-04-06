@@ -76,7 +76,7 @@
     <!-- api.database properties overwrites hibernate properties in persistence.xml in traccar-api project -->
     <entry key='api.database.driver'>com.mysql.jdbc.Driver</entry>
     <entry key='api.database.url'>jdbc:mysql://127.0.0.1:3306/traccar_api_metadata?allowMultiQueries=true&amp;autoReconnect=true&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;sessionVariables=sql_mode=ANSI_QUOTES</entry>
-    <entry key='api.database.user'>traccar</entry>
+    <entry key='api.database.user'>traccar_api</entry>
     <entry key='api.database.password'>123</entry>
 
     <entry key='api.imei_manager.enabled'>false</entry>
@@ -341,7 +341,7 @@
     <!--<entry key='intellitrac.port'>5037</entry>-->
     <entry key='gpsmta.port'>5038</entry>
     <entry key='wialon.port'>5039</entry>
-    <entry key='carscop.port'>5040</entry>
+    <!-- <entry key='carscop.port'>5040</entry> -->
     <entry key='apel.port'>5041</entry>
     <entry key='manpower.port'>5042</entry>
     <entry key='globalsat.port'>5043</entry>

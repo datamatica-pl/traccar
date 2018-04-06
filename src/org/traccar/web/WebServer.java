@@ -125,14 +125,6 @@ public class WebServer {
             context.bind("java:/ImagesDir", config.getString("api.imagesDir"));
             context.bind("java:/reports.password", config.getString("web.reports.password"));
             
-            context.bind("java:/versions.ios", config.getString("api.versions.ios"));
-            context.bind("java:/versions.android", config.getString("api.versions.android"));
-            context.bind("java:/versions.iosRequired", config.getString("api.versions.iosrequired"));
-            context.bind("java:/versions.androidRequired", config.getString("api.versions.androidrequired"));
-            context.bind("java:/versions.messageKey", config.getString("api.versions.messagekey"));
-            context.bind("java:/versions.messageLocalized", config.getString("api.versions.messagelocalized"));
-            context.bind("java:/versions.messageUrl", config.getString("api.versions.messageurl"));
-            
             context.bind("java:/fcm_secret", config.getString("fcm_secret"));
             
 

@@ -94,7 +94,7 @@ public class WebServer {
             default:
                 initWebApp();
                 break;
-        }                
+        }
         server.setHandler(handlers);
 
         server.addBean(new ErrorHandler() {
@@ -143,7 +143,7 @@ public class WebServer {
     
     private void initStaticHandler() {
         if(config.hasKey("web.static")) {
-            ResourceHandler rh = new ResourceHandler();
+            ResourceHandler rh = new ResourceHandlerIgnoringRoot();
             rh.setResourceBase(config.getString("web.static"));
             handlers.addHandler(rh);
         }

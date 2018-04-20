@@ -30,6 +30,15 @@ public class DefaultDataHandler extends BaseDataHandler {
             Position lastPosition = Context.getConnectionManager().getLastPosition(position.getDeviceId());
             Device device = Context.getDataManager().getDeviceById(position.getDeviceId());
             position.setTime(new Date(position.getFixTime().getTime() + device.getTimezoneOffset() * 60 * 1000));
+            if(position.getFuelLevel() != null && position.getFuelUsed() == null) {
+                device.updateFuelLevel(position.getFuelLevel());
+                if(position.getFuelUsed() == null) {
+                    position.set(Event.KEY_FUEL_USED, device.getFuelUsed());
+                } else {
+                    device.setFuelUsed(position.getFuelUsed());
+                }
+                Context.getDataManager().updateFuel(device);
+            }
             Context.getDataManager().addPosition(position);
             Integer batteryLevel = position.getBatteryLevel();
             if (batteryLevel != null) {

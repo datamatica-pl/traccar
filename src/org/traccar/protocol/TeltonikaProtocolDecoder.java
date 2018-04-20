@@ -29,10 +29,12 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.traccar.BaseProtocolDecoder;
 import org.traccar.Context;
+import org.traccar.helper.AnalogInputToFuelLevelCalculator;
 import org.traccar.helper.BatteryVoltageToPercentageCalculator;
 import org.traccar.helper.BitUtil;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.CommandResponse;
+import org.traccar.model.Device;
 import org.traccar.model.Event;
 import org.traccar.model.KeyValueCommandResponse;
 import static org.traccar.model.KeyValueCommandResponse.*;
@@ -42,6 +44,19 @@ import org.traccar.model.Position;
 public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
     private final int IGNITION_IO_KEY = 239;
     private final int BATTERY_VOLTAGE_IO_KEY = 67;
+    private final int ANALOG_INPUT_IO_KEY = 9;
+    private final int FUEL_LEVEL_IO_KEY = 84;
+    private final int FUEL_USED_IO_KEY = 83;
+    
+    private final double[] FUEL_ANALOG_VAL = new double[] {
+        0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1
+    };
+    
+    private final int[] FUEL_ANALOG_VOL = new int[] {
+        4701, 4378, 4163, 3956, 3692, 3428, 3121, 2811, 2505
+    };
+    
+    private AnalogInputToFuelLevelCalculator fuelCalc;
 
     public TeltonikaProtocolDecoder(TeltonikaProtocol protocol) {
         super(protocol);
@@ -57,6 +72,9 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
             ChannelBuffer response = ChannelBuffers.directBuffer(1);
             if (result) {
                 response.writeByte(1);
+                Device device = getDevice();
+                fuelCalc = new AnalogInputToFuelLevelCalculator(FUEL_ANALOG_VOL,
+                    FUEL_ANALOG_VAL, device.getFuelCapacity());
             } else {
                 response.writeByte(0);
             }
@@ -191,12 +209,27 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                     int id = buf.readUnsignedByte();
                     int val = buf.readUnsignedShort();
                     position.set(Event.PREFIX_IO + id, val);
-                    if (id == BATTERY_VOLTAGE_IO_KEY) {
-                        int minBatteryVoltageInMV = 2700;
-                        int maxBatteryVoltageInMV = 4100;
-                        BatteryVoltageToPercentageCalculator batCalc = new BatteryVoltageToPercentageCalculator(
-                                minBatteryVoltageInMV, maxBatteryVoltageInMV);
-                        position.set(Event.KEY_BATTERY, batCalc.voltsToPercent(val));
+                    switch (id) {
+                        case BATTERY_VOLTAGE_IO_KEY:
+                            int minBatteryVoltageInMV = 2700;
+                            int maxBatteryVoltageInMV = 4100;
+                            BatteryVoltageToPercentageCalculator batCalc = new BatteryVoltageToPercentageCalculator(
+                                    minBatteryVoltageInMV, maxBatteryVoltageInMV);
+                            position.set(Event.KEY_BATTERY, batCalc.voltsToPercent(val));
+                            break;
+                        case FUEL_USED_IO_KEY:
+                            position.set(Event.KEY_FUEL_USED, val/10.0);
+                            break;
+                        case FUEL_LEVEL_IO_KEY:
+                            position.set(Event.KEY_FUEL, val);
+                            break;
+                        case ANALOG_INPUT_IO_KEY:
+                            if(!position.getAttributes().containsKey(Event.KEY_FUEL)
+                                    && fuelCalc != null)
+                                position.set(Event.KEY_FUEL, fuelCalc.calculate(val));
+                            break;
+                        default:
+                            break;
                     }
                 }
             }

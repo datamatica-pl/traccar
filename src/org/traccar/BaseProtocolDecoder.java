@@ -43,6 +43,10 @@ public abstract class BaseProtocolDecoder extends ExtendedObjectDecoder {
         return deviceId;
     }
     
+    protected Device getDevice() {
+        return Context.getIdentityManager().getDeviceById(deviceId);
+    }
+    
     protected ActiveDevice getActiveDevice() {
         return Context.getConnectionManager().getActiveDevice(deviceId);
     }

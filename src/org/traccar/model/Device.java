@@ -131,4 +131,38 @@ public class Device {
     public void setCommandPassword(String commandPassword) {
         this.commandPassword = commandPassword;
     }
+    
+    private final double DEFAULT_FUEL_CAPACITY = 60;
+    private Double fuelCapacity;
+    
+    public double getFuelCapacity() {
+        if(fuelCapacity == null)
+            return DEFAULT_FUEL_CAPACITY;
+        return fuelCapacity;
+    }
+
+    private double fuelLevel;
+    private double fuelUsed;
+    
+    public void setFuelLevel(double level) {
+        this.fuelLevel = level;
+    }
+    
+    public void setFuelUsed(double used) {
+        this.fuelUsed = used;
+    }
+    
+    public void updateFuelLevel(double fuelLevel) {
+        double used = this.fuelLevel - fuelLevel;
+        if(used < 0 && used > -5)
+            return;
+        this.fuelLevel = fuelLevel;
+        if(used > 0) {
+            fuelUsed += used; 
+        }
+    }
+    
+    public double getFuelUsed() {
+        return fuelUsed;
+    }
 }

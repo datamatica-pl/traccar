@@ -63,6 +63,7 @@ public abstract class Event extends Extensible {
     public static final String PREFIX_ADC = "adc";
     public static final String PREFIX_IO = "io";
     public static final String PREFIX_COUNT = "count";
+    public static final String KEY_FUEL_USED = "fuel-used";
 
     private long id;
 

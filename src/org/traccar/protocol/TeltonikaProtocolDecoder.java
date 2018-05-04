@@ -221,7 +221,7 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                             position.set(Event.KEY_FUEL_USED, val/10.0);
                             break;
                         case FUEL_LEVEL_IO_KEY:
-                            position.set(Event.KEY_FUEL, val);
+                            position.set(Event.KEY_FUEL, (double)val);
                             break;
                         case ANALOG_INPUT_IO_KEY:
                             if(!position.getAttributes().containsKey(Event.KEY_FUEL)

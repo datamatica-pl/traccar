@@ -238,8 +238,8 @@
     -->
 
     <entry key='database.insertPosition'>
-        INSERT INTO positions (device_id, protocol, serverTime, time, valid, latitude, longitude, altitude, speed, course, address, other, validStatus)
-        VALUES (:deviceId, :protocol, :now, :deviceTime, :valid, :latitude, :longitude, :altitude, :speed, :course, :address, :attributes, :validStatus);
+        INSERT INTO positions (device_id, protocol, serverTime, time, valid, latitude, longitude, altitude, speed, course, address, other, validStatus, fuelLevel, fuelUsed)
+        VALUES (:deviceId, :protocol, :now, :deviceTime, :valid, :latitude, :longitude, :altitude, :speed, :course, :address, :attributes, :validStatus, :fuelLevel, :fuelUsed);
     </entry>
 
     <!--
@@ -278,6 +278,12 @@
 		SET ignition = :ignition, ignTime = :now
 		WHERE id = :deviceId
 	</entry>
+  
+  <entry key="database.updateFuel">
+    UPDATE devices
+    SET fuelLevel = :fuelLevel, fuelUsed = :fuelUsed
+    WHERE id = :id
+  </entry>
 
 	<entry key="database.updatePosFreq">
 		UPDATE devices

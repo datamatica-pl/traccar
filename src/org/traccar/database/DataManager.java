@@ -490,6 +490,12 @@ public class DataManager implements IdentityManager {
                 .setDate("now", new Date())
                 .executeUpdate();
     }
+    
+    public void updateFuel(Device device) throws SQLException {
+        QueryBuilder.create(dataSource, getQuery("database.updateFuel"))
+                .setObject(device)
+                .executeUpdate();
+    }
 
     void updateCmdStatus(Command cmd) throws SQLException {      
         if(Command.TYPE_POSITION_PERIODIC.equals(cmd.getType())

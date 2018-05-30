@@ -168,6 +168,14 @@ public class Position extends Event {
     public Boolean getIgnition() {
         return (Boolean)getAttributes().get(KEY_IGNITION);
     }
+    
+    public Double getFuelLevel() {
+        return (Double)getAttributes().get(KEY_FUEL);
+    }
+    
+    public Double getFuelUsed() {
+        return (Double)getAttributes().get(Event.KEY_FUEL_USED);
+    }
 
     public boolean isAlarm() {
         Boolean isAlarm = (Boolean)this.getAttributes().get(Event.KEY_ALARM);

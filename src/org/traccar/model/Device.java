@@ -152,7 +152,7 @@ public class Device {
         this.fuelUsed = used;
     }
     
-    public void updateFuelLevel(double fuelLevel) {
+    public void updateFuelLevel(Double fuelLevel) {
         double used = this.fuelLevel - fuelLevel;
         if(used < 0 && used > -5)
             return;

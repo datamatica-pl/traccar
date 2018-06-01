@@ -162,11 +162,11 @@ public class Device {
         }
     }
     
-    public double getFuelLevel() {
+    public Double getFuelLevel() {
         return fuelLevel;
     }
     
-    public double getFuelUsed() {
+    public Double getFuelUsed() {
         return fuelUsed;
     }
 }

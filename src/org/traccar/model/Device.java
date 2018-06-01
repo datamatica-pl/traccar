@@ -141,14 +141,14 @@ public class Device {
         return fuelCapacity;
     }
 
-    private double fuelLevel;
-    private double fuelUsed;
+    private Double fuelLevel;
+    private Double fuelUsed;
     
-    public void setFuelLevel(double level) {
+    public void setFuelLevel(Double level) {
         this.fuelLevel = level;
     }
     
-    public void setFuelUsed(double used) {
+    public void setFuelUsed(Double used) {
         this.fuelUsed = used;
     }
     

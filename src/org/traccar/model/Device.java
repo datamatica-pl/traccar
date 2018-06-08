@@ -141,21 +141,20 @@ public class Device {
         return fuelCapacity;
     }
 
-    private Double fuelLevel;
-    private Double fuelUsed;
+    private double fuelLevel;
+    private double fuelUsed;
     
-    public void setFuelLevel(Double level) {
+    public void setFuelLevel(double level) {
         this.fuelLevel = level;
     }
     
-    public void setFuelUsed(Double used) {
+    public void setFuelUsed(double used) {
         this.fuelUsed = used;
     }
     
     public void updateFuelLevel(Double fuelLevel) {
         double used = 0;
-        if(this.fuelLevel != null)
-            used = this.fuelLevel - fuelLevel;
+        used = this.fuelLevel - fuelLevel;
         if(used < 0 && used > -5)
             return;
         this.fuelLevel = fuelLevel;
@@ -164,11 +163,11 @@ public class Device {
         }
     }
     
-    public Double getFuelLevel() {
+    public double getFuelLevel() {
         return fuelLevel;
     }
     
-    public Double getFuelUsed() {
+    public double getFuelUsed() {
         return fuelUsed;
     }
 }

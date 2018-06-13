@@ -59,6 +59,7 @@ public class WebServer {
             sessionIdManager.setWorkerName("node1");
             sessionIdManager.setDatasource(dataSource);
             sessionManager.setSessionIdManager(sessionIdManager);
+            handlers.addHandler(new SecuredRedirectHandler());
         } catch (Exception ex) {
             Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, ex);
         } finally {

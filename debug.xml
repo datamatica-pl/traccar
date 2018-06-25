@@ -10,19 +10,20 @@
     <!--<entry key='web.address'></entry>-->
     <!--<entry key='web.application'>../traccar-web/traccar-web.war</entry>
     <entry key='web.old'>true</entry>-->
-	<entry key='web.config'>conf/jetty.xml</entry>
+    <entry key='web.config'>conf/jetty.xml</entry>
     <entry key='web.path'>web</entry>
     <entry key='web.type'>old</entry>
     <entry key='web.application'>../traccar-web/target/traccar-web-0.12.1.war</entry>
     <entry key='web.debug'>true</entry>
     <entry key='web.console'>true</entry>
     <entry key='web.timeout'>30000</entry>
-	<entry key='web.reports.password'>inne_haslo</entry>
+    <entry key='web.reports.password'>inne_haslo</entry>
 
-	<entry key='api.enable'>true</entry>
-	<entry key='api.path'>../traccar-api/target/traccar-api-1.0-SNAPSHOT.war</entry>
-	<entry key='api.stringsDir'>../traccar-api/strings</entry>
+    <entry key='api.enable'>true</entry>
+    <entry key='api.path'>../traccar-api/target/traccar-api-1.0-SNAPSHOT.war</entry>
+    <entry key='api.stringsDir'>../traccar-api/strings</entry>
     <entry key='api.imagesDir'>../traccar-api/images</entry>
+    <entry key="api.directions_key">SECRET</entry>
 
     <entry key='geocoder.enable'>true</entry>
     <entry key='geocoder.type'>nominatim</entry>

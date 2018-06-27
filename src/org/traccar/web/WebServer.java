@@ -125,7 +125,6 @@ public class WebServer {
             context.bind("java:/DefaultDS", dataSource);
             context.bind("java:/StringsDir", config.getString("api.stringsDir"));
             context.bind("java:/ImagesDir", config.getString("api.imagesDir"));
-            context.bind("java:/reports.password", config.getString("web.reports.password"));
             
             context.bind("java:/fcm_secret", config.getString("fcm_secret"));
             

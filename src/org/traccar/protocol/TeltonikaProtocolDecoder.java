@@ -19,7 +19,6 @@ import java.io.StringReader;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,7 +52,7 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
     };
     
     private final int[] FUEL_ANALOG_VOL = new int[] {
-        4701, 4378, 4163, 3956, 3692, 3428, 3121, 2811, 2505
+        2505, 2811, 3121, 3428, 3692, 3956, 4163, 4378, 4701
     };
     
     private AnalogInputToFuelLevelCalculator fuelCalc;

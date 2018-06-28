@@ -24,6 +24,12 @@ public class AnalogInputToFuelLevelCalculator {
     private final double[] lvl;
     private final double capacity;
     
+    /**
+     * 
+     * @param vol Array of voltage thresholds used to count fuel level. Make sure the array is in ascending order.
+     * @param lvl Array of multipiers for each voltage level to convert analog input voltage into percentage of fuel.
+     * @param capacity Fuel capacity
+     */
     public AnalogInputToFuelLevelCalculator(int[] vol, double[] lvl, double capacity) {
         this.vol = vol;
         this.lvl = lvl;

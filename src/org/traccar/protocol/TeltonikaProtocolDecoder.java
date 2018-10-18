@@ -211,7 +211,7 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                     switch (id) {
                         case BATTERY_VOLTAGE_IO_KEY:
                             final int minBatteryVoltageInMV = 3600;
-                            final int maxBatteryVoltageInMV = 4100;
+                            final int maxBatteryVoltageInMV = 4200;
                             final LinearBatteryVoltageToPercentCalc batCalc = new LinearBatteryVoltageToPercentCalc(
                                     minBatteryVoltageInMV, maxBatteryVoltageInMV);
                             position.set(Event.KEY_BATTERY, batCalc.voltsToPercent(val));

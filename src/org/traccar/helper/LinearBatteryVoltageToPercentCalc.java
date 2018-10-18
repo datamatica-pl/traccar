@@ -16,6 +16,12 @@
 
 package org.traccar.helper;
 
+// Remeber that battery voltage can't be so easy converted to percentage values. Really it's not a linear function.
+// This function varies from battery to battery, depending on battery type, temperature and maybe more, sample charts are visible here:
+// https://devzone.nordicsemi.com/f/nordic-q-a/28101/how-to-calculate-battery-voltage-into-percentage-for-aa-2-batteries-without-fluctuations/110796#110796
+// Values minVoltage and maxVoltage given to this class should have cut edge values, especially low voltage end.
+// For example: when device lose all power on 3450mV use rather higher value for minVoltage. I use 3600mV (for Teltonika TMT-250 it's a little more than 20%).
+
 /**
  *
  * @author Jan Usarek

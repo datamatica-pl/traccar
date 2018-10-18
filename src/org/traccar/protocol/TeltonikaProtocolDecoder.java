@@ -43,6 +43,7 @@ import org.traccar.model.Position;
 public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
     private final int IGNITION_IO_KEY = 239;
     private final int BATTERY_VOLTAGE_IO_KEY = 67;
+    private final int BATTERY_PERCENT_IO_KEY = 113;
     private final int ANALOG_INPUT_IO_KEY = 9;
     private final int FUEL_LEVEL_IO_KEY = 84;
     private final int FUEL_USED_IO_KEY = 83;
@@ -189,6 +190,11 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                     if (id == 1) {
                         position.set(Event.KEY_POWER, oneByteValue);
                     } else {
+                        if (id == BATTERY_PERCENT_IO_KEY) {
+                            if (oneByteValue >=0 && oneByteValue <= 100) {
+                                position.set(Event.KEY_BATTERY, oneByteValue);
+                            }
+                        }
                         if (id == IGNITION_IO_KEY) {
                             if (oneByteValue == 0) {
                                 position.set(Event.KEY_IGNITION, false);
@@ -210,11 +216,14 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                     position.set(Event.PREFIX_IO + id, val);
                     switch (id) {
                         case BATTERY_VOLTAGE_IO_KEY:
-                            final int minBatteryVoltageInMV = 3600;
-                            final int maxBatteryVoltageInMV = 4200;
-                            final LinearBatteryVoltageToPercentCalc batCalc = new LinearBatteryVoltageToPercentCalc(
-                                    minBatteryVoltageInMV, maxBatteryVoltageInMV);
-                            position.set(Event.KEY_BATTERY, batCalc.voltsToPercent(val));
+                            // Only if battery percentage level hasn't been catched (BATTERY_PERCENT_IO_KEY)
+                            if (position.getBatteryLevel() == null) {
+                                final int minBatteryVoltageInMV = 3600;
+                                final int maxBatteryVoltageInMV = 4200;
+                                final LinearBatteryVoltageToPercentCalc batCalc = new LinearBatteryVoltageToPercentCalc(
+                                        minBatteryVoltageInMV, maxBatteryVoltageInMV);
+                                position.set(Event.KEY_BATTERY, batCalc.voltsToPercent(val));
+                            }
                             break;
                         case FUEL_USED_IO_KEY:
                             position.set(Event.KEY_FUEL_USED, val/10.0);

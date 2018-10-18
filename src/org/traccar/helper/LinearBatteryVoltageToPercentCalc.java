@@ -20,12 +20,12 @@ package org.traccar.helper;
  *
  * @author Jan Usarek
  */
-public class BatteryVoltageToPercentageCalculator {
+public class LinearBatteryVoltageToPercentCalc {
     private final int minVoltage;
     private final int maxVoltage;
     private final int voltageDiff;
     
-    public BatteryVoltageToPercentageCalculator(int minVoltageMV, int maxVoltageMV) {
+    public LinearBatteryVoltageToPercentCalc(int minVoltageMV, int maxVoltageMV) {
         minVoltage = minVoltageMV;
         maxVoltage = maxVoltageMV;
         voltageDiff = maxVoltage - minVoltage;

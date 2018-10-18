@@ -30,7 +30,7 @@ public class BatteryVoltageToPercentageCalculatorTest {
     @Test
     public void testBatteryVoltageToPercentage() {
         Map<Integer, Integer> dataAndResult = new HashMap<>();
-        BatteryVoltageToPercentageCalculator calc = new BatteryVoltageToPercentageCalculator(2750, 4100);
+        LinearBatteryVoltageToPercentCalc calc = new LinearBatteryVoltageToPercentCalc(2750, 4100);
         dataAndResult.put(2500, 0);
         dataAndResult.put(2750, 0);
         dataAndResult.put(2885, 10);

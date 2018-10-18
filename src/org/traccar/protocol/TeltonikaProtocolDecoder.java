@@ -29,7 +29,7 @@ import org.jboss.netty.channel.Channel;
 import org.traccar.BaseProtocolDecoder;
 import org.traccar.Context;
 import org.traccar.helper.AnalogInputToFuelLevelCalculator;
-import org.traccar.helper.BatteryVoltageToPercentageCalculator;
+import org.traccar.helper.LinearBatteryVoltageToPercentCalc;
 import org.traccar.helper.BitUtil;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.CommandResponse;
@@ -210,9 +210,9 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                     position.set(Event.PREFIX_IO + id, val);
                     switch (id) {
                         case BATTERY_VOLTAGE_IO_KEY:
-                            int minBatteryVoltageInMV = 2700;
-                            int maxBatteryVoltageInMV = 4100;
-                            BatteryVoltageToPercentageCalculator batCalc = new BatteryVoltageToPercentageCalculator(
+                            final int minBatteryVoltageInMV = 3600;
+                            final int maxBatteryVoltageInMV = 4100;
+                            final LinearBatteryVoltageToPercentCalc batCalc = new LinearBatteryVoltageToPercentCalc(
                                     minBatteryVoltageInMV, maxBatteryVoltageInMV);
                             position.set(Event.KEY_BATTERY, batCalc.voltsToPercent(val));
                             break;

@@ -29,7 +29,6 @@ import org.jboss.netty.channel.Channel;
 import org.traccar.BaseProtocolDecoder;
 import org.traccar.Context;
 import org.traccar.helper.AnalogInputToFuelLevelCalculator;
-import org.traccar.helper.LinearBatteryVoltageToPercentCalc;
 import org.traccar.helper.BitUtil;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.CommandResponse;
@@ -39,6 +38,7 @@ import org.traccar.model.KeyValueCommandResponse;
 import static org.traccar.model.KeyValueCommandResponse.*;
 import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.Position;
+import org.traccar.helper.IBatteryVoltageToPercentCalc;
 
 public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
     private final int IGNITION_IO_KEY = 239;
@@ -47,19 +47,21 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
     private final int ANALOG_INPUT_IO_KEY = 9;
     private final int FUEL_LEVEL_IO_KEY = 84;
     private final int FUEL_USED_IO_KEY = 83;
-    
+    private final IBatteryVoltageToPercentCalc batCalc;
+
     private final double[] FUEL_ANALOG_VAL = new double[] {
         0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1
     };
-    
+
     private final int[] FUEL_ANALOG_VOL = new int[] {
         2505, 2811, 3121, 3428, 3692, 3956, 4163, 4378, 4701
     };
-    
+
     private AnalogInputToFuelLevelCalculator fuelCalc;
 
-    public TeltonikaProtocolDecoder(TeltonikaProtocol protocol) {
+    public TeltonikaProtocolDecoder(TeltonikaProtocol protocol, IBatteryVoltageToPercentCalc calc) {
         super(protocol);
+        batCalc = calc;
     }
 
     private void parseIdentification(Channel channel, SocketAddress remoteAddress, ChannelBuffer buf) {
@@ -206,7 +208,7 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                     }
                 }
             }
-            
+
             // Read all 2 byte IO elements
             if (BitUtil.check(globalMask, 2)) {
                 int cnt = buf.readUnsignedByte();
@@ -218,10 +220,6 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                         case BATTERY_VOLTAGE_IO_KEY:
                             // Only if battery percentage level hasn't been catched (BATTERY_PERCENT_IO_KEY)
                             if (position.getBatteryLevel() == null) {
-                                final int minBatteryVoltageInMV = 3600;
-                                final int maxBatteryVoltageInMV = 4200;
-                                final LinearBatteryVoltageToPercentCalc batCalc = new LinearBatteryVoltageToPercentCalc(
-                                        minBatteryVoltageInMV, maxBatteryVoltageInMV);
                                 position.set(Event.KEY_BATTERY, batCalc.voltsToPercent(val));
                             }
                             break;
@@ -257,7 +255,7 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                     position.set(Event.PREFIX_IO + buf.readUnsignedByte(), buf.readLong());
                 }
             }
-            
+
             positions.add(position);
         }
 
@@ -283,9 +281,9 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                 return parseCmdResponse(channel, buf);
             } else {
                 return parseLocation(channel, buf);
-            }   
+            }
         }
-        
+
         return null;
     }
 
@@ -318,7 +316,7 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
         kvResp.put(normalizeKey(key), r[r.length-1]);
         return kvResp;
     }
-    
+
     private String normalizeKey(String dKey) {
         dKey = dKey.trim();
         if("Data Link".equalsIgnoreCase(dKey)) {

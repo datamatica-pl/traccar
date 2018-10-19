@@ -23,6 +23,7 @@ import org.traccar.TrackerServer;
 import org.traccar.model.Command;
 
 import java.util.List;
+import org.traccar.helper.TeltonikaBatteryVoltageToPercentCalc;
 
 public class TeltonikaProtocol extends BaseProtocol {
 
@@ -46,19 +47,23 @@ public class TeltonikaProtocol extends BaseProtocol {
 
     @Override
     public void initTrackerServers(List<TrackerServer> serverList) {
+
+
         serverList.add(new TrackerServer(new ServerBootstrap(), getName()) {
             @Override
             protected void addSpecificHandlers(ChannelPipeline pipeline) {
                 pipeline.addLast("frameDecoder", new TeltonikaFrameDecoder());
                 pipeline.addLast("objectEncoder", new TeltonikaProtocolEncoder());
-                pipeline.addLast("objectDecoder", new TeltonikaProtocolDecoder(TeltonikaProtocol.this));
+                pipeline.addLast("objectDecoder", new TeltonikaProtocolDecoder(TeltonikaProtocol.this,
+                        new TeltonikaBatteryVoltageToPercentCalc()));
             }
         });
         serverList.add(new TrackerServer(new ConnectionlessBootstrap(), getName()) {
             @Override
             protected void addSpecificHandlers(ChannelPipeline pipeline) {
                 pipeline.addLast("objectEncoder", new TeltonikaProtocolEncoder());
-                pipeline.addLast("objectDecoder", new TeltonikaProtocolDecoder(TeltonikaProtocol.this));
+                pipeline.addLast("objectDecoder", new TeltonikaProtocolDecoder(TeltonikaProtocol.this,
+                        new TeltonikaBatteryVoltageToPercentCalc()));
             }
         });
     }

@@ -3,13 +3,19 @@ package org.traccar.protocol;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
+import static org.mockito.Matchers.anyInt;
+import org.mockito.Mockito;
 import org.traccar.ProtocolTest;
+import org.traccar.helper.LinearBatteryVoltageToPercentCalc;
 import org.traccar.model.MessageCommandResponse;
 import org.traccar.model.Position;
+import org.traccar.helper.IBatteryVoltageToPercentCalc;
+import org.traccar.helper.TeltonikaBatteryVoltageToPercentCalc;
 
 public class TeltonikaProtocolDecoderTest extends ProtocolTest {
 
-    private final TeltonikaProtocolDecoder decoder = new TeltonikaProtocolDecoder(new TeltonikaProtocol());
+    private final TeltonikaProtocolDecoder decoder = new TeltonikaProtocolDecoder(new TeltonikaProtocol(),
+            new TeltonikaBatteryVoltageToPercentCalc());
 
     @Test
     public void testDecode() throws Exception {
@@ -86,5 +92,22 @@ public class TeltonikaProtocolDecoderTest extends ProtocolTest {
                 + "00000100009a29"));
 
         Assert.assertEquals(48, (int)list.get(0).getBatteryLevel());
+    }
+
+    @Test
+    public void testPostionWithBatteryVoltage() throws Exception {
+        IBatteryVoltageToPercentCalc batteryCalcMock = Mockito.mock(LinearBatteryVoltageToPercentCalc.class);
+        Mockito.when(batteryCalcMock.voltsToPercent(anyInt())).thenReturn(50);
+
+        final TeltonikaProtocolDecoder decoderMockedBatCalc = new TeltonikaProtocolDecoder(new TeltonikaProtocol(),
+            batteryCalcMock);
+        
+        List<Position> list = (List)decoderMockedBatCalc.decode(null, null, binary("000000000000003A"
+                + "0801000001668853E720000C8F3BBD1F179468005601640B0000000A05F00150011504C800450105B50006B6000542004D180000"
+                + "4310C6" // battery key + real battery leven (voltage) but in test we overwrite it by mocked value
+                + "0000010000DE42"));
+
+        // Because battery percent is not available here, expected behaviour is get battery level from calculator mocked before
+        Assert.assertEquals(50, (int)list.get(0).getBatteryLevel());
     }
 }

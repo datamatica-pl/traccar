@@ -26,7 +26,7 @@ import org.junit.Test;
  * @author Jan Usarek
  */
 public class BatteryVoltageToPercentageCalculatorTest {
-    
+
     @Test
     public void testBatteryVoltageToPercentage() {
         Map<Integer, Integer> dataAndResult = new HashMap<>();
@@ -42,7 +42,31 @@ public class BatteryVoltageToPercentageCalculatorTest {
         dataAndResult.put(3965, 90);
         dataAndResult.put(4100, 100);
         dataAndResult.put(4200, 100);
-        
+
+        for (Map.Entry<Integer, Integer> pair : dataAndResult.entrySet()) {
+            int voltage = pair.getKey();
+            int expectedResult = pair.getValue();
+            int result = calc.voltsToPercent(voltage);
+            if (result != expectedResult) {
+                Assert.fail(this.getClass().getSimpleName() + " AssertionError for data: "
+                        + voltage + " expected " + expectedResult + ", result: " + result);
+            }
+        }
+    }
+
+    @Test
+    public void testTeltonikaBatteryVoltageToPercentage() {
+        Map<Integer, Integer> dataAndResult = new HashMap<>();
+        TeltonikaBatteryVoltageToPercentCalc calc = new TeltonikaBatteryVoltageToPercentCalc();
+        dataAndResult.put(2500, 0);
+        dataAndResult.put(3500, 0);
+        dataAndResult.put(3600, 0);
+        dataAndResult.put(3750, 25);
+        dataAndResult.put(3900, 50);
+        dataAndResult.put(4050, 75);
+        dataAndResult.put(4200, 100);
+        dataAndResult.put(4300, 100);
+
         for (Map.Entry<Integer, Integer> pair : dataAndResult.entrySet()) {
             int voltage = pair.getKey();
             int expectedResult = pair.getValue();

@@ -26,7 +26,7 @@ package org.traccar.helper;
  *
  * @author Jan Usarek
  */
-public class LinearBatteryVoltageToPercentCalc {
+public class LinearBatteryVoltageToPercentCalc implements IBatteryVoltageToPercentCalc {
     private final int minVoltage;
     private final int maxVoltage;
     private final int voltageDiff;
@@ -37,6 +37,7 @@ public class LinearBatteryVoltageToPercentCalc {
         voltageDiff = maxVoltage - minVoltage;
     }
     
+    @Override
     public int voltsToPercent(int currentVoltage) {
         if (currentVoltage <= minVoltage) {
             return 0;

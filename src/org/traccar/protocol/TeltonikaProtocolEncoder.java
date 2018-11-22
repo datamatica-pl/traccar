@@ -29,6 +29,7 @@ import java.util.stream.IntStream;
 public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
 
     private static final String SET_PARAM_FORMAT = "setparam %s %s";
+    private static final String SET_PARAM_FMB_FORMAT = "setparam %s:%s";
 
     /**
      * Teltonika protocol command types taken from "FM1000 ST User Manual V2.8" and "FMA 120 User Manual V1.03"
@@ -52,6 +53,8 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
         public static final String SET_AUTHORIZED_NUMBER_1 = "1260"; // FM1000: 9.4.14
         public static final int FMB_AUTHORIZED_NUMS_BEGIN_INDEX = 4000;
         public static final int FMB_AUTHORIZED_NUMS_END_INDEX = 4199;
+        public static final String FMB_TOWING_DETECTION_ON = "setparam 11600:3;11601:1;11602:5;11603:30;11604:0;7035:1";
+        public static final String FMB_TOWING_DETECTION_OFF = "setparam 11600:0";
     }
 
     private ChannelBuffer encodeContent(String content) {
@@ -87,15 +90,9 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
 
         switch (command.getType()) {
             case Command.TYPE_AUTO_ALARM_ARM:
-                return encodeContent(
-                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.AUTO_GEOFENCING,
-                            TeltonikaCommand.PARAM_ENABLE)
-                );
+                return encodeContent(TeltonikaCommand.FMB_TOWING_DETECTION_ON);
             case Command.TYPE_AUTO_ALARM_DISARM:
-                return encodeContent(
-                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.AUTO_GEOFENCING,
-                            TeltonikaCommand.PARAM_DISABLE)
-                );
+                return encodeContent(TeltonikaCommand.FMB_TOWING_DETECTION_OFF);
             case Command.TYPE_POSITION_SINGLE:
                 return encodeContent(TeltonikaCommand.GET_GPS);
             case Command.TYPE_POSITION_PERIODIC:

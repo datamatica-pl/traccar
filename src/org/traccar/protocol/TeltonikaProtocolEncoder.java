@@ -28,31 +28,6 @@ import java.util.stream.IntStream;
 
 public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
 
-    private static final String SET_PARAM_FORMAT = "setparam %s %s";
-    private static final String SET_PARAM_FMB_FORMAT = "setparam %s:%s";
-
-    /**
-     * Teltonika protocol command types taken from "FM1000 ST User Manual V2.8" and "FMA 120 User Manual V1.03"
-     * Comments like "FM1000: 9.5.1.3" means Teltonika FM1000 manual
-     * Comments like "FM120: ..." means Teltonika FMA120 manual
-     */
-    private static class TeltonikaCommand {
-        public static final String HOME_NET_SEND_PERIOD_RUN = "1554"; // FM1000 manual: 9.5.2.5
-        public static final String HOME_NET_SEND_PERIOD_STOP = "1544"; // FM1000: 9.5.1.3
-        public static final String GET_GPS = "getgps";
-        public static final String CPU_RESET = "cpureset";
-        public static final String GET_STATUS = "getstatus";
-        public static final String GET_INFO = "getinfo";
-        public static final String FACTORY_RESET = "resetprof";
-        public static final String TOWING_DETECTION = "1291"; // FM1000: 9.6.15
-        public static final String TOWING_DISABLED = "0"; // FM1000: 9.6.15
-        public static final String TOWING_HIGH_PRIORITY_EVENT = "2"; // FM1000: 9.6.15
-        public static final String AUTO_GEOFENCING = "1101"; // FMA120: 8.6.11
-        public static final String PARAM_DISABLE = "0";
-        public static final String PARAM_ENABLE = "1";
-        public static final String SET_AUTHORIZED_NUMBER_1 = "1260"; // FM1000: 9.4.14
-    }
-    
     private static class TeltonikaFMBCommand {
         public static final String SET_PARAM_FORMAT = "setparam %s:%s";
         public static final String POSITION_PERIODIC = "setparam 10050:%s;10054:1;10055:%s";
@@ -87,7 +62,7 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
 
         return buf;
     }
-    
+
     private String getClearIdsRangeCommand(int begin, int end) {
         final String cmdIdsAndVals = IntStream
                 .rangeClosed(begin, end)
@@ -119,7 +94,8 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
                     centerNumber = command.getAttributes().get(Command.KEY_CENTER_NUMBER).toString();
                 }
                 return encodeContent(
-                    String.format(SET_PARAM_FORMAT, TeltonikaFMBCommand.SET_AUTHORIZED_NUMBER_1, centerNumber)
+                    String.format(TeltonikaFMBCommand.SET_PARAM_FORMAT,
+                            TeltonikaFMBCommand.SET_AUTHORIZED_NUMBER_1, centerNumber)
                 );
             case Command.TYPE_REBOOT_DEVICE:
                 return encodeContent(TeltonikaFMBCommand.CPU_RESET);

@@ -35,13 +35,14 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
         public static final String TOWING_DETECTION_ON = "setparam 11600:3;11601:1;11602:5;11603:30;11604:0;7035:1";
         public static final String TOWING_DETECTION_OFF = "setparam 11600:0";
         public static final String SET_AUTHORIZED_NUMBER_1 = "4000";
-        public static final String GET_GPS = "getgps";
-        public static final String CPU_RESET = "cpureset";
-        public static final String GET_STATUS = "getstatus";
-        public static final String GET_INFO = "getinfo";
-        public static final String FACTORY_RESET = "defaultcfg";
         public static final int AUTHORIZED_NUMS_BEGIN_INDEX = 4000;
         public static final int AUTHORIZED_NUMS_END_INDEX = 4199;
+        public static final String FACTORY_RESET = "defaultcfg";
+        // Commands marked as FMAB works as well in Teltonika FMB as in FMA
+        public static final String FMAB_GET_GPS = "getgps";
+        public static final String FMAB_CPU_RESET = "cpureset";
+        public static final String FMAB_GET_STATUS = "getstatus";
+        public static final String FMAB_GET_INFO = "getinfo";
     }
 
     private ChannelBuffer encodeContent(String content) {
@@ -81,7 +82,7 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
             case Command.TYPE_AUTO_ALARM_DISARM:
                 return encodeContent(TeltonikaFMBCommand.TOWING_DETECTION_OFF);
             case Command.TYPE_POSITION_SINGLE:
-                return encodeContent(TeltonikaFMBCommand.GET_GPS);
+                return encodeContent(TeltonikaFMBCommand.FMAB_GET_GPS);
             case Command.TYPE_POSITION_PERIODIC:
                 final String frequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
                 return encodeContent(String.format(TeltonikaFMBCommand.POSITION_PERIODIC, frequency, frequency));
@@ -98,13 +99,13 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
                             TeltonikaFMBCommand.SET_AUTHORIZED_NUMBER_1, centerNumber)
                 );
             case Command.TYPE_REBOOT_DEVICE:
-                return encodeContent(TeltonikaFMBCommand.CPU_RESET);
+                return encodeContent(TeltonikaFMBCommand.FMAB_CPU_RESET);
             case Command.TYPE_FACTORY_SETTINGS:
                 return encodeContent(TeltonikaFMBCommand.FACTORY_RESET);
             case Command.TYPE_GET_STATUS:
-                return encodeContent(TeltonikaFMBCommand.GET_STATUS);
+                return encodeContent(TeltonikaFMBCommand.FMAB_GET_STATUS);
             case Command.TYPE_GET_PARAMS:
-                return encodeContent(TeltonikaFMBCommand.GET_INFO);
+                return encodeContent(TeltonikaFMBCommand.FMAB_GET_INFO);
             case Command.TYPE_EXTENDED_CUSTOM:
                 String customCommand = command.getAttributes().get(Command.KEY_MESSAGE).toString();
                 return encodeContent(customCommand);

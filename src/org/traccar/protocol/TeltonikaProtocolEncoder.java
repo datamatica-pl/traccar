@@ -56,6 +56,11 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
         public static final String FMB_TOWING_DETECTION_ON = "setparam 11600:3;11601:1;11602:5;11603:30;11604:0;7035:1";
         public static final String FMB_TOWING_DETECTION_OFF = "setparam 11600:0";
     }
+    
+    private static class TeltonikaFMBCommand {
+        public static final String POSITION_PERIODIC = "setparam 10050:%s;10054:1;10055:%s";
+        public static final String POSITION_STOP = "'setparam 10000:%s;10005:120'";
+    }
 
     private ChannelBuffer encodeContent(String content) {
 
@@ -97,14 +102,10 @@ public class TeltonikaProtocolEncoder extends BaseProtocolEncoder {
                 return encodeContent(TeltonikaCommand.GET_GPS);
             case Command.TYPE_POSITION_PERIODIC:
                 final String frequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
-                return encodeContent(
-                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.HOME_NET_SEND_PERIOD_RUN, frequency)
-                );
+                return encodeContent(String.format(TeltonikaFMBCommand.POSITION_PERIODIC, frequency, frequency));
             case Command.TYPE_POSITION_STOP:
                 final String stopFrequency = command.getAttributes().get(Command.KEY_FREQUENCY).toString();
-                return encodeContent(
-                    String.format(SET_PARAM_FORMAT, TeltonikaCommand.HOME_NET_SEND_PERIOD_STOP, stopFrequency)
-                );
+                return encodeContent(String.format(TeltonikaFMBCommand.POSITION_STOP, stopFrequency));
             case Command.TYPE_SET_CENTER_NUMBER:
                 String centerNumber = "";
                 if (command.getAttributes().get(Command.KEY_CENTER_NUMBER) != null) {

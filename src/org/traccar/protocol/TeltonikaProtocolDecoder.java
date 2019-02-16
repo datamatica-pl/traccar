@@ -216,6 +216,7 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                     int id = buf.readUnsignedByte();
                     int val = buf.readUnsignedShort();
                     position.set(Event.PREFIX_IO + id, val);
+                    Boolean ignition = (Boolean)position.getAttributes().get(Event.KEY_IGNITION);
                     switch (id) {
                         case BATTERY_VOLTAGE_IO_KEY:
                             // Only if battery percentage level hasn't been catched (BATTERY_PERCENT_IO_KEY)
@@ -231,7 +232,7 @@ public class TeltonikaProtocolDecoder extends BaseProtocolDecoder {
                             break;
                         case ANALOG_INPUT_IO_KEY:
                             if(!position.getAttributes().containsKey(Event.KEY_FUEL)
-                                    && fuelCalc != null)
+                                    && fuelCalc != null && (ignition == null || ignition))
                                 position.set(Event.KEY_FUEL, fuelCalc.calculate(val));
                             break;
                         default:
